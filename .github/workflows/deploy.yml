@@ -1,0 +1,57 @@
+name: Deploy gallery
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: guide/package-lock.json
+
+      - name: Validate gallery.json
+        # Offline: the link check runs in the pull-request workflow, where a
+        # broken link is actionable. Failing a deploy because someone else's
+        # site is briefly down would block unrelated changes.
+        run: node scripts/check-gallery.mjs --offline
+
+      - name: Build the guide deck
+        working-directory: guide
+        run: |
+          npm ci
+          npm run build
+
+      # Same script you run locally, so a local preview matches the deploy.
+      - name: Assemble the site
+        run: node scripts/build-site.mjs
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

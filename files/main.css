@@ -1,0 +1,432 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap');
+
+/*
+ * AI Gray Box Gallery
+ *
+ * Structure follows the three.js homepage: a fixed left #panel (collapsing to a
+ * header bar with a hamburger on narrow screens) alongside a #viewer holding a
+ * full-bleed grid of linked thumbnails.
+ */
+
+:root {
+	--panel-width: 260px;
+	--bg: #fcfcfc;
+	--panel-bg: #ffffff;
+	--text: #1a1a1a;
+	--text-dim: #6e6e73;
+	--line: #e3e3e6;
+	--accent: #2d5d8f;
+	--tile-bg: #ededf0;
+	--caption-bg: rgba(16, 18, 22, 0.86);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #121316;
+		--panel-bg: #17191d;
+		--text: #e9e9ec;
+		--text-dim: #9a9aa2;
+		--line: #2a2d33;
+		--accent: #7fb2e5;
+		--tile-bg: #22252b;
+		--caption-bg: rgba(8, 9, 11, 0.88);
+	}
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background-color: var(--bg);
+	color: var(--text);
+	font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+}
+
+a {
+	color: var(--accent);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------- panel */
+
+#panel {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: var(--panel-width);
+	height: 100%;
+	background-color: var(--panel-bg);
+	border-right: 1px solid var(--line);
+	display: flex;
+	flex-direction: column;
+	z-index: 100;
+}
+
+#header {
+	padding: 24px 24px 16px 24px;
+	border-bottom: 1px solid var(--line);
+}
+
+#header h1 {
+	margin: 0;
+	font-size: 22px;
+	font-weight: 600;
+	letter-spacing: -0.015em;
+	line-height: 1.2;
+}
+
+#sections {
+	margin-top: 10px;
+	font-size: 14px;
+	color: var(--text-dim);
+}
+
+#sections a {
+	color: var(--text-dim);
+	margin-right: 14px;
+}
+
+#sections a:hover {
+	color: var(--accent);
+}
+
+#expandButton {
+	display: none;
+}
+
+#panelScrim {
+	display: none;
+}
+
+#contentWrapper {
+	flex: 1;
+	overflow-y: auto;
+}
+
+#content {
+	padding: 20px 24px 40px 24px;
+}
+
+#content h2 {
+	margin: 24px 0 8px 0;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--text-dim);
+}
+
+#content h2:first-child {
+	margin-top: 0;
+}
+
+#content ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+#content li {
+	margin: 4px 0;
+	font-size: 15px;
+}
+
+/* the featured guide entry -- a gray box about gray boxes, so it looks like one */
+
+#featured {
+	margin-bottom: 8px;
+}
+
+.featured-card {
+	display: block;
+	padding: 14px 16px;
+	background-color: var(--tile-bg);
+	border: 1px solid var(--line);
+	border-left: 3px solid var(--accent);
+	border-radius: 4px;
+	color: var(--text);
+}
+
+.featured-card:hover {
+	text-decoration: none;
+	border-color: var(--accent);
+}
+
+.featured-title {
+	display: block;
+	font-size: 15px;
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+
+.featured-blurb {
+	display: block;
+	font-size: 13px;
+	line-height: 1.45;
+	color: var(--text-dim);
+}
+
+.featured-cta {
+	display: block;
+	margin-top: 10px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--accent);
+}
+
+/* --------------------------------------------------------------- viewer */
+
+#viewer {
+	margin-left: var(--panel-width);
+	min-height: 100vh;
+	position: relative;
+}
+
+#button {
+	position: absolute;
+	top: 20px;
+	right: 24px;
+	z-index: 10;
+	padding: 7px 14px;
+	font-size: 13px;
+	font-weight: 600;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background-color: var(--panel-bg);
+	color: var(--text-dim);
+}
+
+#button:hover {
+	text-decoration: none;
+	color: var(--accent);
+	border-color: var(--accent);
+}
+
+#intro {
+	padding: 72px 32px 8px 32px;
+	max-width: 760px;
+}
+
+#intro p {
+	margin: 0;
+	font-size: 17px;
+	line-height: 1.55;
+	color: var(--text-dim);
+}
+
+#projects {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+	gap: 20px;
+	padding: 28px 32px 48px 32px;
+}
+
+.tile {
+	position: relative;
+	display: block;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	border-radius: 6px;
+	background-color: var(--tile-bg);
+	border: 1px solid var(--line);
+}
+
+.tile:hover {
+	text-decoration: none;
+	border-color: var(--accent);
+}
+
+.tile img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.35s ease;
+}
+
+.tile:hover img {
+	transform: scale(1.03);
+}
+
+.tile-caption {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 14px 16px;
+	background: var(--caption-bg);
+	color: #fff;
+	opacity: 0;
+	transform: translateY(6px);
+	transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.tile:hover .tile-caption,
+.tile:focus-visible .tile-caption {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.tile-title {
+	display: block;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.tile-subtitle {
+	display: block;
+	margin-top: 3px;
+	font-size: 13px;
+	line-height: 1.35;
+	color: #d6d6db;
+}
+
+.tile-meta {
+	display: block;
+	margin-top: 7px;
+	font-size: 12px;
+	color: #a9a9b3;
+}
+
+#noscript {
+	padding: 72px 32px 32px 32px;
+}
+
+/*
+ * Touch and narrow screens have no hover, so a caption that only appears on
+ * hover would be permanently invisible there -- pin it open instead.
+ */
+@media (hover: none), (max-width: 700px) {
+
+	.tile-caption {
+		opacity: 1;
+		transform: none;
+		position: static;
+		background: transparent;
+		color: var(--text);
+		padding: 10px 2px 0 2px;
+	}
+
+	.tile {
+		aspect-ratio: auto;
+		overflow: visible;
+		border: none;
+		background: transparent;
+		border-radius: 0;
+	}
+
+	.tile img {
+		aspect-ratio: 16 / 9;
+		height: auto;
+		border-radius: 6px;
+		border: 1px solid var(--line);
+	}
+
+	.tile:hover img {
+		transform: none;
+	}
+
+	.tile-subtitle {
+		color: var(--text-dim);
+	}
+
+	.tile-meta {
+		color: var(--text-dim);
+	}
+}
+
+/* ----------------------------------------------------- collapsing panel */
+
+@media (max-width: 900px) {
+
+	#panel {
+		width: 100%;
+		height: auto;
+	}
+
+	#header {
+		padding: 16px 20px;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 4px 16px;
+	}
+
+	#header h1 {
+		font-size: 19px;
+	}
+
+	#sections {
+		margin-top: 0;
+		flex: 1;
+	}
+
+	#expandButton {
+		display: block;
+		width: 26px;
+		height: 26px;
+		cursor: pointer;
+		background-image: linear-gradient(to bottom, var(--text-dim) 0 2px, transparent 2px 8px, var(--text-dim) 8px 10px, transparent 10px 16px, var(--text-dim) 16px 18px, transparent 18px);
+	}
+
+	#contentWrapper {
+		display: none;
+		border-top: 1px solid var(--line);
+		max-height: 70vh;
+	}
+
+	#panel.open #contentWrapper {
+		display: block;
+	}
+
+	#panel.open #panelScrim {
+		display: block;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.35);
+		z-index: -1;
+	}
+
+	#viewer {
+		margin-left: 0;
+		padding-top: 64px;
+	}
+
+	#button {
+		position: static;
+		display: inline-block;
+		margin: 16px 20px 0 20px;
+	}
+
+	#intro {
+		padding: 16px 20px 0 20px;
+	}
+
+	#projects {
+		padding: 20px 20px 40px 20px;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		gap: 24px;
+	}
+
+	#noscript {
+		padding: 16px 20px;
+	}
+}

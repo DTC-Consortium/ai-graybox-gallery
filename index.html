@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>AI Gray Box Gallery</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="A gallery of gray box examples for using generative and agentic AI to illustrate concepts in college courses.">
+		<meta property="og:title" content="AI Gray Box Gallery">
+		<meta property="og:description" content="Gray box examples for using generative and agentic AI to illustrate concepts in college courses.">
+		<link rel="stylesheet" type="text/css" href="files/main.css">
+	</head>
+	<body>
+
+		<div id="panel">
+
+			<div id="header">
+				<h1>AI Gray&nbsp;Box Gallery</h1>
+				<div id="sections">
+					<a href="guide/">guide</a>
+					<a href="CONTRIBUTING.md">contribute</a>
+				</div>
+				<div id="expandButton"></div>
+			</div>
+
+			<div id="panelScrim"></div>
+
+			<div id="contentWrapper">
+				<div id="content">
+
+					<div id="featured">
+						<h2>Start here</h2>
+						<a class="featured-card" href="guide/">
+							<span class="featured-title">Make Your Own Gray Box</span>
+							<span class="featured-blurb">A slide-by-slide walkthrough: prompt an AI to draft
+							your example, put it on GitHub, license it CC&nbsp;BY&nbsp;4.0, deploy it to
+							Pages, and add it to this gallery.</span>
+							<span class="featured-cta">Open the guide &rarr;</span>
+						</a>
+					</div>
+
+					<h2>Contribute</h2>
+					<ul>
+						<li><a href="CONTRIBUTING.md">contributor checklist</a></li>
+						<li><a href="template/">starter deck</a></li>
+						<li><a href="https://github.com/DTC-Consortium/ai-graybox-gallery/pulls">open a gallery PR</a></li>
+						<li><a href="https://github.com/DTC-Consortium">DTC-Consortium org</a></li>
+					</ul>
+
+					<h2>About</h2>
+					<ul>
+						<li><a href="README.md">what is a gray box?</a></li>
+						<li><a href="https://sli.dev/">Slidev</a></li>
+						<li><a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></li>
+					</ul>
+
+					<h2>Code</h2>
+					<ul>
+						<li><a href="https://github.com/DTC-Consortium/ai-graybox-gallery">github</a></li>
+					</ul>
+
+				</div>
+			</div>
+		</div>
+
+		<script>
+		var panel = document.getElementById( 'panel' );
+		var expandButton = document.getElementById( 'expandButton' );
+		var panelScrim = document.getElementById( 'panelScrim' );
+
+		expandButton.addEventListener( 'click', function ( event ) {
+
+			panel.classList.toggle( 'open' );
+			event.preventDefault();
+
+		} );
+
+		panelScrim.onclick = function ( event ) {
+
+			event.preventDefault();
+			panel.classList.toggle( 'open' );
+
+		};
+
+		</script>
+
+		<div id="viewer">
+
+			<a id="button" class="text" href="CONTRIBUTING.md">submit a gray box</a>
+
+			<div id="intro">
+				<p>A <strong>gray box</strong> is the shaded sidebar in a textbook that teaches one
+				concept through one worked, contextualized example. These are gray boxes built with
+				generative and agentic AI for use in college courses &mdash; each one a short,
+				self-contained, interactive deck.</p>
+			</div>
+
+			<div id="projects"></div>
+
+			<noscript>
+				<div id="noscript">
+					<h2>Gray box examples</h2>
+					<ul>
+						<li><a href="https://dtc-consortium.github.io/graybox-sortingthespiderverse/">Sorting the Spider-Verse</a> &mdash; four sorting algorithms raced on Spider-Man box-office data</li>
+						<li><a href="https://ocj-dev.github.io/kineval/pathfinding/">A-Star Path Planning</a> &mdash; walking A-star through a grid world, one expanded node at a time</li>
+					</ul>
+					<p>The thumbnail grid needs JavaScript; the links above do not.</p>
+				</div>
+			</noscript>
+
+		</div>
+
+		<script src="files/gallery.js"></script>
+
+	</body>
+</html>

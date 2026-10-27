@@ -1,0 +1,16 @@
+{
+  "name": "ai-graybox-gallery",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Gallery of gray box examples for using generative and agentic AI to illustrate concepts in college courses",
+  "license": "CC-BY-4.0",
+  "scripts": {
+    "thumb": "node scripts/thumb.mjs",
+    "check": "node scripts/check-gallery.mjs",
+    "serve": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

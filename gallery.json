@@ -1,0 +1,31 @@
+{
+  "$schema": "./files/gallery.schema.json",
+  "entries": [
+    {
+      "slug": "sortingthespiderverse",
+      "title": "Sorting the Spider-Verse",
+      "subtitle": "Four sorting algorithms raced on Spider-Man box-office data",
+      "author": "Chad Jenkins",
+      "course": "Data Structures & Algorithms",
+      "topics": ["sorting", "algorithm analysis"],
+      "url": "https://dtc-consortium.github.io/graybox-sortingthespiderverse/",
+      "repo": "https://github.com/DTC-Consortium/graybox-sortingthespiderverse",
+      "thumb": "files/thumbs/sortingthespiderverse.jpg",
+      "thumbSlide": 11,
+      "added": "2026-10-27"
+    },
+    {
+      "slug": "astar-pathfinding",
+      "title": "A-Star Path Planning",
+      "subtitle": "Walking A-star through a grid world, one expanded node at a time",
+      "author": "Chad Jenkins",
+      "course": "Autonomous Robotics",
+      "topics": ["graph search", "heuristics", "motion planning"],
+      "url": "https://ocj-dev.github.io/kineval/pathfinding/",
+      "repo": "https://github.com/ocj-dev/kineval",
+      "thumb": "files/thumbs/astar-pathfinding.png",
+      "thumbSlide": 15,
+      "added": "2026-10-27"
+    }
+  ]
+}

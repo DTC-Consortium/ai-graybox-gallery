@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/*
+ * Starter styling for a gray box deck. Change the palette and the fonts; the
+ * class names (.panel, .tag, .title-footer, .credit) are the ones the template
+ * slides use, so keep those or rename them in both places.
+ */
+
+:root {
+  --paper: #faf9f7;
+  --ink: #1b1d21;
+  --ink-soft: #5a5f69;
+  --box: #eceae6;
+  --box-line: #d6d3cd;
+  --accent: #2d5d8f;
+  --accent-dark: #1d3f63;
+  --warn: #9a5b1f;
+  --good: #2f6b43;
+
+  --slidev-code-background: #f1efec;
+  --slidev-code-foreground: #1b1d21;
+}
+
+html.dark {
+  --slidev-code-background: #f1efec !important;
+  --slidev-code-foreground: #1b1d21 !important;
+}
+
+.slidev-layout {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.slidev-layout h1 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: 2.4em;
+  line-height: 1.08;
+}
+
+.slidev-layout h1 .accent {
+  color: var(--accent);
+}
+
+.slidev-layout h2 {
+  font-weight: 600;
+  border-bottom: 3px solid var(--accent);
+  display: inline-block;
+  padding-bottom: 0.12em;
+  margin-bottom: 0.5em;
+  font-size: 1.5em;
+}
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.92em;
+}
+
+/* the gray box */
+.panel {
+  background: var(--box);
+  border: 1px solid var(--box-line);
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+  padding: 0.8em 1em;
+}
+
+.panel.plain { border-left-color: var(--box-line); }
+.panel.warn { border-left-color: var(--warn); }
+.panel.good { border-left-color: var(--good); }
+.panel > :first-child { margin-top: 0; }
+.panel > :last-child { margin-bottom: 0; }
+
+.panel-label {
+  display: block;
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.35em;
+}
+
+.tag {
+  display: inline-block;
+  background: var(--box);
+  border: 1px solid var(--box-line);
+  border-radius: 999px;
+  padding: 0.12em 0.7em;
+  margin: 0 0.3em 0.35em 0;
+  font-size: 0.78em;
+  color: var(--ink-soft);
+}
+
+.title-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.2em;
+  text-align: center;
+}
+
+.nav-hint {
+  font-size: 0.8em;
+  color: var(--ink-soft);
+}
+
+.credit {
+  margin-top: 0.4em;
+  font-size: 0.72em;
+  color: var(--ink-soft);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}

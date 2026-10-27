@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AI Gray Box Gallery entries",
+  "type": "object",
+  "required": ["entries"],
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["slug", "title", "author", "url", "repo", "thumb"],
+        "additionalProperties": false,
+        "properties": {
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$",
+            "description": "Short identifier; also the thumbnail filename stem."
+          },
+          "title": { "type": "string" },
+          "subtitle": {
+            "type": "string",
+            "description": "One line on what the gray box actually shows."
+          },
+          "author": { "type": "string" },
+          "course": {
+            "type": "string",
+            "description": "The course or discipline this gray box was written for."
+          },
+          "topics": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "A few lowercase keywords."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Public URL of the deck. May be hosted under DTC-Consortium or under the author's own account -- the author's choice."
+          },
+          "repo": { "type": "string", "format": "uri" },
+          "thumb": {
+            "type": "string",
+            "description": "Repo-relative path, conventionally files/thumbs/<slug>.png at 1600x900."
+          },
+          "thumbSlide": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Which slide the thumbnail was captured from, so it can be regenerated."
+          },
+          "added": { "type": "string", "format": "date" }
+        }
+      }
+    }
+  }
+}
