@@ -29,7 +29,7 @@ fonts:
 
 <div class="title-footer">
 <div class="nav-hint">Press <span class="key">&rarr;</span> to move forward through the deck</div>
-<div class="credit">AI Gray Box Gallery &#183; DTC Consortium &#183; CC BY 4.0 &#183; 2026</div>
+<div class="credit">Chad Jenkins &#183; DTC Consortium &#183; CC BY 4.0 &#183; 2026</div>
 </div>
 
 <!--
@@ -662,12 +662,22 @@ Your gray box is both: prose and slides, plus a real Vue component.
 Dual-license, and say so in two lines of `README.md`:
 
 - **Slides, text and figures:** CC BY 4.0
-- **Code (components, scripts):** MIT
+- **Code (components, scripts):** BSD 3-Clause
 
 This is what the gallery repository itself does. If your deck has no meaningful
 code, plain CC BY 4.0 is fine on its own.
 
 </div>
+</div>
+
+<div class="panel mt-4 text-sm">
+<b>Why BSD 3-Clause and not MIT?</b> Clause 3 forbids using your name to endorse
+or promote derived work without permission &mdash; the same protection
+<b>Section 2(b)(6) of CC BY 4.0</b> already gives your slides, which MIT has no
+equivalent for. It also keeps you in the same family as the Michigan Honor
+License, which is 3-Clause BSD plus two academic-integrity clauses. (The BSD
+license to avoid is the <b>4-clause</b> one, whose advertising clause is
+GPL-incompatible.)
 </div>
 
 ---
@@ -686,7 +696,7 @@ from <code>creativecommons.org/licenses/by/4.0/legalcode</code>, or pick
 
 <div class="panel mb-3">
 <span class="step">2</span><b>A line in <code>README.md</code>.</b> One sentence naming the license
-and the holder: <i>&copy; 2026 Your Name. Slides and text licensed CC BY 4.0; code MIT.</i>
+and the holder: <i>&copy; 2026 Your Name. Slides and text licensed CC BY 4.0; code BSD 3-Clause.</i>
 </div>
 
 <div class="panel good">
@@ -1228,7 +1238,7 @@ sli.dev
 </div>
 
 <div class="title-footer">
-<div class="credit">AI Gray Box Gallery &#183; DTC Consortium &#183; CC BY 4.0 &#183; 2026</div>
+<div class="credit">Chad Jenkins &#183; DTC Consortium &#183; CC BY 4.0 &#183; 2026</div>
 </div>
 
 <!--

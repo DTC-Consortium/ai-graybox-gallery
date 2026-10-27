@@ -45,4 +45,4 @@ through the [guide deck](https://dtc-consortium.github.io/ai-graybox-gallery/gui
 
 ---
 
-© 2026 — slides and text licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); code MIT.
+© 2026 — slides and text licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); code BSD 3-Clause.

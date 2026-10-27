@@ -39,7 +39,9 @@ you — and it's the standard for open educational resources, so your deck
 interoperates with the rest of the OER world.
 
 If your deck contains substantial code, dual-license: slides and text CC BY 4.0,
-code MIT. Creative Commons recommends against CC licenses for software.
+code **BSD 3-Clause**. Creative Commons recommends against CC licenses for
+software, and BSD 3-Clause's no-endorsement clause matches the one CC BY 4.0
+already applies to your slides.
 
 **Put your license and year on your title slide.** Gallery entries are expected
 to carry them on the slide that gets screenshotted and re-shared:

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Gallery of gray box examples for using generative and agentic AI to illustrate concepts in college courses",
-  "license": "CC-BY-4.0",
+  "license": "CC-BY-4.0 AND BSD-3-Clause",
   "scripts": {
     "thumb": "node scripts/thumb.mjs",
     "check": "node scripts/check-gallery.mjs",

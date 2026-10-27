@@ -6,8 +6,9 @@ below. Slides, text and figures in this repository are licensed under the
 Creative Commons Attribution 4.0 International License.
 
 If your deck contains substantial code (interactive components, scripts), also
-add an MIT LICENSE-MIT file for it -- Creative Commons recommends against
-using CC licenses for software.
+add a BSD 3-Clause LICENSE-BSD file for it -- Creative Commons recommends
+against using CC licenses for software, and BSD 3-Clause's no-endorsement
+clause matches the one CC BY 4.0 already applies to your slides.
 
 =======================================================================
 

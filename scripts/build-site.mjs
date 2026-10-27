@@ -28,7 +28,7 @@ try {
 await rm( site, { recursive: true, force: true } );
 await mkdir( site, { recursive: true } );
 
-for ( const name of [ 'index.html', 'gallery.json', 'README.md', 'CONTRIBUTING.md', 'LICENSE', 'LICENSE-MIT' ] ) {
+for ( const name of [ 'index.html', 'gallery.json', 'README.md', 'CONTRIBUTING.md', 'LICENSE', 'LICENSE-BSD' ] ) {
 	await cp( join( root, name ), join( site, name ) );
 }
 

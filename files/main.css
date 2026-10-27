@@ -89,6 +89,12 @@ a:hover {
 	line-height: 1.2;
 }
 
+#byline {
+	margin-top: 5px;
+	font-size: 13px;
+	color: var(--text-dim);
+}
+
 #sections {
 	margin-top: 10px;
 	font-size: 14px;
@@ -369,6 +375,13 @@ a:hover {
 
 	#header h1 {
 		font-size: 19px;
+	}
+
+	/* Give the byline its own line so it never crowds the title on a phone. */
+	#byline {
+		width: 100%;
+		margin-top: 0;
+		order: 3;
 	}
 
 	#sections {

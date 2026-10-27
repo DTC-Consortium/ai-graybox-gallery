@@ -1,13 +1,16 @@
 AI Gray Box Gallery
-Copyright (c) 2026 DTC Consortium and the individual gray box authors
+Copyright (c) 2026 Chad Jenkins, the DTC Consortium, and the individual gray
+box authors
 
 The gallery pages, the guide deck, the template deck and all prose in this
 repository are licensed under the Creative Commons Attribution 4.0
 International License, reproduced in full below.
 
 The scripts in scripts/ and the JavaScript in files/ are additionally made
-available under the MIT License (see LICENSE-MIT), because Creative Commons
-recommends against using CC licenses for software.
+available under the BSD 3-Clause License (see LICENSE-BSD), because Creative
+Commons recommends against using CC licenses for software. BSD 3-Clause is
+used rather than MIT so that the code carries the same no-endorsement
+protection that Section 2(b)(6) of CC BY 4.0 gives the prose beside it.
 
 Each gray box linked from this gallery is licensed by its own author; see that
 project's repository for its terms.

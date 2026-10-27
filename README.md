@@ -86,13 +86,14 @@ assembles the site, and publishes to GitHub Pages on every push to `main`.
 
 ## License
 
-© 2026 DTC Consortium and the individual gray box authors.
+© 2026 Chad Jenkins · DTC Consortium, and the individual gray box authors.
 
 Pages, prose, and the guide and template decks are licensed
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) ([`LICENSE`](LICENSE)).
-The code in `scripts/` and `files/*.js` is additionally available under the MIT
-License ([`LICENSE-MIT`](LICENSE-MIT)), because Creative Commons recommends
-against using CC licenses for software.
+The code in `scripts/` and `files/*.js` is additionally available under the
+[BSD 3-Clause License](LICENSE-BSD), because Creative Commons recommends against
+using CC licenses for software — and because BSD 3-Clause's no-endorsement
+clause mirrors the one CC BY 4.0 already applies to the prose beside it.
 
 Each gray box linked from this gallery is licensed by its own author; see that
 project's repository.
