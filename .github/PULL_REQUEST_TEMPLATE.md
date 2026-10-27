@@ -11,12 +11,13 @@ Delete it and describe the change instead.
 **Concept it teaches:**
 **Context / data it uses:**
 **Course or discipline:**
+**License:**
 
 ## Checklist
 
 - [ ] Deck loads at its public URL in a fresh browser
 - [ ] Every slide steps correctly, start to finish
-- [ ] Title slide shows `CC BY 4.0 · 2026` (or your own year)
+- [ ] Title slide shows your license and year, e.g. `CC BY 4.0 · 2026`
 - [ ] `LICENSE` file present in the deck's repository
 - [ ] Thumbnail added under `files/thumbs/`, 1600×900, showing the concept
       rather than the title slide

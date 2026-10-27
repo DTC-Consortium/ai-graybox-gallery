@@ -48,6 +48,8 @@
 		if ( entry.author ) meta.push( entry.author );
 		if ( entry.course ) meta.push( entry.course );
 		if ( entry.topics && entry.topics.length ) meta.push( entry.topics.join( ' · ' ) );
+		// Authors license their own decks, so the terms differ entry to entry.
+		if ( entry.license ) meta.push( entry.license );
 
 		if ( meta.length ) {
 

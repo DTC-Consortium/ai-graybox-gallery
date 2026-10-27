@@ -41,12 +41,16 @@ interoperates with the rest of the OER world.
 If your deck contains substantial code, dual-license: slides and text CC BY 4.0,
 code MIT. Creative Commons recommends against CC licenses for software.
 
-**Put `CC BY 4.0 · 2026` on your title slide.** Gallery entries are expected to
-carry the license and year on the slide that gets screenshotted and re-shared:
+**Put your license and year on your title slide.** Gallery entries are expected
+to carry them on the slide that gets screenshotted and re-shared:
 
 ```html
 <div class="credit">Your Name (you@university.edu) · CC BY 4.0 · 2026</div>
 ```
+
+If your deck is under a different license, name that one instead — A-Star Path
+Planning is part of KinEval and carries `Michigan Honor License · 2026`. Record
+whichever it is in the `license` field of your gallery entry.
 
 ## 4. Optional: fork into DTC-Consortium
 
@@ -88,6 +92,7 @@ Your `gallery.json` entry:
   "topics": ["topic", "topic"],
   "url": "https://you.github.io/graybox-topic/",
   "repo": "https://github.com/you/graybox-topic",
+  "license": "CC BY 4.0",
   "thumb": "files/thumbs/your-graybox.png",
   "thumbSlide": 11,
   "added": "2026-10-27"
@@ -103,7 +108,7 @@ Pick a **thumbnail slide that shows the concept**, not the title slide. Use
 
 - [ ] Deck loads at its public URL in a fresh browser
 - [ ] Every slide steps correctly, start to finish
-- [ ] Title slide shows `CC BY 4.0 · 2026`
+- [ ] Title slide shows your license and year, e.g. `CC BY 4.0 · 2026`
 - [ ] `LICENSE` file present in your repository
 - [ ] Thumbnail is 1600×900 and shows the concept
 - [ ] `npm run check` passes

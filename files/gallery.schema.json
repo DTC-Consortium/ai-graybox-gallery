@@ -37,6 +37,10 @@
             "description": "Public URL of the deck. May be hosted under DTC-Consortium or under the author's own account -- the author's choice."
           },
           "repo": { "type": "string", "format": "uri" },
+          "license": {
+            "type": "string",
+            "description": "The deck's license, as shown on its title slide. CC BY 4.0 is recommended but not required -- authors license their own work."
+          },
           "thumb": {
             "type": "string",
             "description": "Repo-relative path, conventionally files/thumbs/<slug>.png at 1600x900."

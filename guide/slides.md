@@ -690,10 +690,9 @@ and the holder: <i>&copy; 2026 Your Name. Slides and text licensed CC BY 4.0; co
 </div>
 
 <div class="panel good">
-<span class="step">3</span><b>On your title slide.</b> Add <code>CC BY 4.0 &#183; 2026</code> to the
-credit line. The title slide is what gets screenshotted, embedded, and
-re-shared &mdash; it should carry the license with it. <b>Gallery entries are expected
-to have this.</b>
+<span class="step">3</span><b>On your title slide.</b> Add the license and year to the credit
+line. The title slide is what gets screenshotted, embedded, and re-shared &mdash; it
+should carry the license with it. <b>Gallery entries are expected to have this.</b>
 </div>
 
 </div>
@@ -701,6 +700,11 @@ to have this.</b>
 ```html
 <div class="credit">Your Name (you@university.edu) &#183; CC BY 4.0 &#183; 2026</div>
 ```
+
+<div class="text-sm mt-2" style="color: var(--ink-soft)">
+Under a different license? Name that one. A-Star Path Planning is part of KinEval,
+so its title slide reads <code>Michigan Honor License &#183; 2026</code>.
+</div>
 
 ---
 layout: center
@@ -1094,6 +1098,7 @@ your gray box means appending one object to it.
   "topics": ["topic", "topic"],
   "url": "https://you.github.io/graybox-topic/",
   "repo": "https://github.com/you/graybox-topic",
+  "license": "CC BY 4.0",
   "thumb": "files/thumbs/your-graybox.png",
   "thumbSlide": 11,
   "added": "2026-10-27"
@@ -1187,7 +1192,7 @@ Then open a pull request against `main`.
 
 - Deck loads at its public URL, from a fresh browser
 - Every slide steps correctly, start to finish
-- Title slide shows **CC BY 4.0 &#183; 2026**
+- Title slide shows your **license and year**
 - `LICENSE` file present in your repository
 - Thumbnail is 1600&times;900 and shows the concept
 - `npm run check` passes
