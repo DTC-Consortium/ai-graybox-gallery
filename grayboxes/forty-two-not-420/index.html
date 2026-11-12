@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Forty-Two, Not 420</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F6F5;--surface:#FFFFFF;--ink:#16262B;--muted:#55686D;--line:#CBD8D6;--tray:#1F6F5C;--tray-ink:#FFFFFF;--alert:#C8372D;--alert-bg:#FBE7E4;--ok:#1F6F5C;--ok-bg:#DDF0EA;--gold:#E3A72F;--gold-bg:#FBF0D9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}}
+:root[data-theme="dark"]{--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:400 clamp(16px,1.5vw,20px)/1.55 "Source Serif 4",Georgia,serif;overflow:hidden}
+h1,h2,h3,button,.tag,th{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif}
+h1{font-size:clamp(34px,6vw,72px);line-height:1.02;margin:0 0 .4em;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(26px,3.6vw,44px);line-height:1.1;margin:0 0 .3em;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.05em;margin:0 0 .3em}
+p{margin:.4em 0}
+.deck{height:100%;display:flex;flex-direction:column}
+.stage{flex:1;position:relative;min-height:0}
+.slide{position:absolute;inset:0;padding:clamp(20px,4vw,56px) clamp(16px,6vw,88px);overflow-y:auto;display:none}
+.slide.on{display:block}
+.wrap{max-width:980px;margin:0 auto}
+.lead{color:var(--muted);font-size:1.1em;max-width:62ch}
+.tag{display:inline-block;background:var(--tray);color:var(--tray-ink);padding:.15em .7em;border-radius:99px;font-size:.8em;font-weight:700;margin-bottom:.8em}
+.bar{display:flex;align-items:center;gap:12px;padding:10px clamp(14px,4vw,40px);border-top:1px solid var(--line);background:var(--surface)}
+.bar button{background:var(--tray);color:var(--tray-ink);border:0;border-radius:8px;padding:.5em 1.1em;font-weight:700;font-size:15px;cursor:pointer}
+.bar button:disabled{opacity:.35;cursor:default}
+.dots{flex:1;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line);cursor:pointer}
+.dots i.on{background:var(--tray);transform:scale(1.3)}
+button:focus-visible,.pick:focus-visible,textarea:focus-visible,input:focus-visible,.dots i:focus-visible,tr[tabindex]:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.hint{font:600 .8em "Bricolage Grotesque",sans-serif;color:var(--muted);margin:.8em 0 .4em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:10px 0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.btn{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.5em 1.1em;font-weight:700;cursor:pointer;font-size:.95em;margin:2px 0}
+.btn.on{border-color:var(--tray);background:var(--ok-bg)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35em .8em;font:600 .9em "Bricolage Grotesque",sans-serif}
+.flow b{color:var(--tray)}
+.pick{display:block;width:100%;text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;font:inherit;cursor:pointer}
+.pick .res{display:none;margin-top:8px;font-size:.92em}
+.pick.open .res{display:block}
+.pick.bad.open{border-color:var(--alert);background:var(--alert-bg)}
+.pick.good.open{border-color:var(--ok);background:var(--ok-bg)}
+.pick.meh.open{border-color:var(--gold);background:var(--gold-bg)}
+.pick .lbl{font:700 .85em "Bricolage Grotesque",sans-serif}
+.pick.bad .lbl{color:var(--alert)}.pick.good .lbl{color:var(--ok)}.pick.meh .lbl{color:var(--ink)}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.q>span{flex:1;min-width:200px}
+.q .opt{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.3em .8em;font-weight:700;font-size:.85em;cursor:pointer}
+.q .opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.q .opt.wrongpick{border-color:var(--alert);background:var(--alert-bg)}
+.q .fb{width:100%;font-size:.9em;display:none}
+.q.done .fb{display:block}
+.tbl-wrap{overflow-x:auto;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:.85em;background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:560px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:.85em;color:var(--muted)}
+th.lab,td.lab{background:var(--ok-bg);font-weight:600}
+tr.flag{cursor:pointer}
+tr.flag:hover{background:var(--bg)}
+tr.flag.marked td{background:var(--gold-bg)}
+tr.flag.marked td.lab{background:var(--gold-bg)}
+tr.flag.shown td{background:var(--alert-bg)}
+.note{display:none;font-size:.9em;margin:6px 0;padding:8px 12px;border-left:4px solid var(--alert);background:var(--surface);border-radius:0 8px 8px 0}
+.note.on{display:block}
+.bars{margin:14px 0}
+.bars .b{display:grid;grid-template-columns:150px 1fr 56px;gap:10px;align-items:center;margin:8px 0;font:600 .85em "Bricolage Grotesque",sans-serif}
+.bars .track{height:22px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.bars .fill{height:100%;background:var(--tray);transition:width .4s}
+.bars .fill.hot{background:var(--alert)}
+.meter{height:30px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--line);margin:12px 0}
+.meter div{display:flex;align-items:center;padding:0 12px;font:700 .8em "Bricolage Grotesque",sans-serif;white-space:nowrap;transition:width .4s}
+.m80{width:80%;background:var(--tray);color:var(--tray-ink)}
+.m20{width:20%;background:var(--surface);color:var(--muted);border-left:1px solid var(--line)}
+.m20.full{background:var(--gold);color:#16262B}
+label.ck{display:flex;gap:10px;align-items:flex-start;margin:8px 0;cursor:pointer}
+label.ck input{margin-top:.45em;width:18px;height:18px;accent-color:var(--tray);flex-shrink:0}
+textarea{width:100%;min-height:110px;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:.9em;resize:vertical}
+code{font:600 .85em "Bricolage Grotesque",sans-serif;background:var(--ok-bg);padding:.1em .4em;border-radius:4px}
+.score{font:600 .85em "Bricolage Grotesque",sans-serif;color:var(--muted)}
+@media (max-width:560px){.q>span{flex-basis:100%}.bars .b{grid-template-columns:96px 1fr 44px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.flyer{width:100%;max-width:340px;display:block;border-radius:10px}
+.hs{cursor:pointer}
+.hs rect.ring{fill:transparent;stroke:transparent;stroke-width:2.5}
+.hs.mk rect.ring{stroke:#c98a12;stroke-dasharray:5 3}
+.hs.bad rect.ring{stroke:#b93535;stroke-dasharray:none}
+.hs.ok rect.ring{stroke:#2e7d4f;stroke-dasharray:none}
+.hs:focus{outline:none}.hs:focus-visible rect.ring{stroke:#4682d5}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;align-items:start}
+.src{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--tray);border-radius:0 10px 10px 0;padding:10px 14px;margin:8px 0;font-size:.92em}
+.src .m{display:block;font:600 .75em "Bricolage Grotesque",sans-serif;color:var(--muted);margin-bottom:4px}
+.letter{background:var(--gold-bg);border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-style:italic;line-height:1.6}
+.letter .pg{display:block;font:600 .72em "Bricolage Grotesque",sans-serif;font-style:normal;color:var(--muted);margin:8px 0 2px}
+.mono{font:500 .8em ui-monospace,Menlo,monospace;color:var(--muted);line-height:1.6}
+.nt{margin:6px 0;font-size:.88em}.nt.bad{color:var(--alert)}.nt.ok{color:var(--ok)}
+.btn{margin:2px 0}
+</style>
+</head>
+<body>
+<div class="deck">
+<div class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide on"><div class="wrap">
+<span class="tag">Case study · STEM</span>
+<h1>Forty-Two, Not 420</h1>
+<p class="lead" style="font-size:1.35em;color:var(--ink)">“The evaluation report says 0.94. The paper says 42 scans. The model says 420.”</p>
+<p class="lead">When is a high score not a good answer?</p>
+<div class="row" style="max-width:520px;margin-top:18px">
+<div class="card" style="text-align:center;border-left:4px solid var(--ok)"><div style="font:800 2.4em 'Bricolage Grotesque',sans-serif;color:var(--ok)">0.94</div><b>Similarity score</b></div>
+<div class="card" style="text-align:center;border-left:4px solid var(--alert)"><div style="font:800 2.4em 'Bricolage Grotesque',sans-serif;color:var(--alert)">420</div><b>Should be 42</b></div>
+</div>
+<p class="hint">Use the arrow keys or the buttons below.</p>
+</div></section>
+
+<!-- 2 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Scenario</span>
+<h2>A literature review on a deadline</h2>
+<div class="src" style="border-left-color:#4682d5"><span class="m">The situation</span>You’re a student research assistant in a biology lab. The lab is building an evidence table from 100 imaging papers: for each one, the sample size, the study design, and the sentence that supports them. A teammate fine-tuned a small model (with LoRA) on 600 hand-made extractions so it fills the table in a consistent format.</div>
+<div class="src" style="border-left-color:var(--ok)"><span class="m">The report</span>“BERTScore on the test set rose from 0.81 (prompted model) to 0.94 (fine-tuned). Ready to run on the remaining papers.”</div>
+<div class="src" style="border-left-color:var(--alert)"><span class="m">What you notice</span>Spot-checking, you find paper 17 says “we retrospectively reviewed 42 de-identified scans.” The model wrote 420.</div>
+<div class="src" style="border-left-color:var(--gold)"><span class="m">What you can and can’t see</span>You have the model’s outputs, the papers, and the score. You didn’t build the training data or the test split.</div>
+<p class="hint">The lab, papers, and numbers are fictional.</p>
+</div></section>
+
+<!-- 3 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 1 · Check against the paper</span>
+<h2>Six extractions, six high scores</h2>
+<p class="lead">Every row scores 0.88 or higher. Click the rows you think are wrong, then check them.</p>
+<div class="tbl-wrap"><table id="log">
+<thead><tr><th>Paper</th><th>What the paper says</th><th>Model output</th><th>BERTScore</th></tr></thead>
+<tbody>
+<tr class="flag" tabindex="0" data-bad="1"><td>17</td><td>“We retrospectively reviewed 42 de-identified scans.”</td><td>420 scans; retrospective review</td><td>0.97</td></tr>
+<tr class="flag" tabindex="0" data-bad="0"><td>23</td><td>“Sixty-four participants were randomized to two arms.”</td><td>64 participants; randomized controlled trial</td><td>0.96</td></tr>
+<tr class="flag" tabindex="0" data-bad="1"><td>31</td><td>“Scans were reviewed by two radiologists.” (No size or design stated.)</td><td>150 scans; prospective cohort</td><td>0.88</td></tr>
+<tr class="flag" tabindex="0" data-bad="0"><td>40</td><td>“Data from 310 patients were analyzed retrospectively.”</td><td>310 patients; retrospective analysis</td><td>0.99</td></tr>
+<tr class="flag" tabindex="0" data-bad="1"><td>52</td><td>“A total of 120 volunteers completed both sessions.”</td><td>1,200 volunteers; crossover study</td><td>0.95</td></tr>
+<tr class="flag" tabindex="0" data-bad="0"><td>66</td><td>“Image quality was rated on a five-point scale.” (No size or design stated.)</td><td>not reported; not reported</td><td>1.00</td></tr>
+</tbody></table></div>
+<p><button class="btn" id="reveal">Check against the papers</button> <span class="score" id="flagScore">Flagged 0 rows.</span></p>
+<div id="notes">
+<p class="note" data-n="1"><b>Row 1 · Wrong number.</b> 42, not 420. One extra digit barely changes the meaning score.</p>
+<p class="note" data-n="3"><b>Row 3 · Invented values.</b> The paper gives neither a size nor a design. The right answer is “not reported.” The model guessed, because its training data never showed “not reported.”</p>
+<p class="note" data-n="5"><b>Row 5 · Wrong number, and an unsupported design.</b> 120, not 1,200, and “crossover” isn’t stated: “both sessions” alone doesn’t establish it.</p>
+<p class="note" data-n="2"><b>Row 2 is correct.</b> 64 participants, randomized into two arms.</p>
+<p class="note" data-n="4"><b>Row 4 is correct.</b> 310 patients, retrospective.</p>
+<p class="note" data-n="6"><b>Row 6 is correct.</b> Nothing stated, so “not reported.” Rare for this model: see Task 3 for why.</p>
+</div>
+</div></section>
+
+<!-- 4 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Why the score missed it</span>
+<h2>Which check would catch each problem?</h2>
+<p class="lead">BERTScore compares meaning with a reference answer. It isn’t built to check facts.</p>
+<div id="chk"></div>
+<p class="score" id="chkScore"></p>
+</div></section>
+
+<!-- 5 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Why this is a gray box problem</span>
+<h2>You can see the score, not how it was made</h2>
+<div class="row">
+<div class="card" style="border-left:4px solid var(--ok)"><h3>What you can see</h3><p>The outputs · the papers · one summary number (0.94)</p></div>
+<div class="card" style="border-left:4px solid var(--alert)"><h3>What you can’t see</h3><p>Which papers were in training · how the test set was chosen · whether any training example said “not reported”</p></div>
+<div class="card" style="border-left:4px solid var(--gold)"><h3>What the builder could check</h3><p>The split list, by paper · per-field accuracy · how many errors were numbers</p></div>
+</div>
+<div class="card" style="background:var(--ink);color:var(--bg)"><b>Gray box insight:</b> one average score hides which fields fail and why. Ask for the evidence behind the number before you trust the number.</div>
+</div></section>
+
+<!-- 6 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 2 · Was the test fair?</span>
+<h2>How the split was made</h2>
+<p><button class="btn" data-tg="sp" data-k="a">As built</button> <button class="btn" data-tg="sp" data-k="b">Split by paper</button></p>
+<div class="card" id="tg-sp"></div>
+<p class="hint">Illustrative numbers. The point: a test only counts if the papers are genuinely new to the model.</p>
+</div></section>
+
+<!-- 7 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 3 · Fix the training data</span>
+<h2>The model learned exactly what it was shown</h2>
+<p><button class="btn" data-tg="dt" data-k="a">Training data as built</button> <button class="btn" data-tg="dt" data-k="b">Revised training data</button></p>
+<div class="card" id="tg-dt"></div>
+</div></section>
+
+<!-- 8 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 4 · Build a better evaluation</span>
+<h2>More than one number</h2>
+<p class="lead">Check each practice you would add before trusting the model.</p>
+<div class="meter"><div class="m80">One similarity score</div><div class="m20" id="m20">Human checks</div></div>
+<label class="ck"><input type="checkbox" class="h"> Exact-match check on every number against the paper</label>
+<label class="ck"><input type="checkbox" class="h"> Report accuracy per field (size, design, evidence), not one average</label>
+<label class="ck"><input type="checkbox" class="h"> Include test papers where the answer is “not reported”</label>
+<label class="ck"><input type="checkbox" class="h"> Split train and test by paper; keep a final test set unopened until the end</label>
+<label class="ck"><input type="checkbox" class="h"> A person spot-checks a sample against the papers; BERTScore stays a secondary signal</label>
+<p id="h20" class="hint">0 of 5 done.</p>
+</div></section>
+
+<!-- 9 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Decide</span>
+<h2>Run it on the remaining 80 papers?</h2>
+<p class="lead">Open each option.</p>
+<button class="pick bad"><span>“Yes. 0.94 is a strong score.”</span><div class="res"><span class="lbl">No.</span> You’ve already found 3 wrong rows in 6. The score doesn’t measure what the lab needs: correct numbers.</div></button>
+<button class="pick meh"><span>“Yes, but a person checks every number against the paper.”</span><div class="res"><span class="lbl">Safe but costly.</span> If every row needs a human check anyway, the model may save less time than it seems. Compare the cost (Week 8).</div></button>
+<button class="pick good"><span>“Not yet. Re-split by paper, add ‘not reported’ examples, retrain, and re-test with exact-match and per-field accuracy.”</span><div class="res"><span class="lbl">Defensible.</span> Fixes the data and the evaluation, then decides on evidence.</div></button>
+<button class="pick good"><span>“Step back down the ladder: retrieve the methods section and prompt with a strict format and ‘not reported’ rule, then compare on the same fair test.”</span><div class="res"><span class="lbl">Also defensible.</span> Cheapest step first. Fine-tuning earns its place only if it beats this on a fair test.</div></button>
+</div></section>
+
+<!-- 10 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Mapped to this week</span>
+<h2>Where each task shows up</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Task</th><th>What to do</th><th>Connects to</th></tr></thead>
+<tbody>
+<tr><td><b>1. Check against the paper</b></td><td>Flag wrong extractions despite high scores</td><td>Task 3.4: metrics and their limits</td></tr>
+<tr><td><b>2. Was the test fair?</b></td><td>Find leakage between training and test</td><td>Task 3.3: data preparation · C1.07: separate development and final-test questions</td></tr>
+<tr><td><b>3. Fix the training data</b></td><td>Add “not reported” examples; verify labels</td><td>Task 3.3: curation, labeling, representativeness</td></tr>
+<tr><td><b>4. Better evaluation</b></td><td>Exact match, per-field accuracy, human spot-checks</td><td>Task 3.4: human-in-the-loop evaluation · C1.07 rubric</td></tr>
+<tr><td><b>5. Decide</b></td><td>Release, check every row, retrain, or step back to prompting and retrieval</td><td>C1.04: compare prompting, retrieval, and customization</td></tr>
+</tbody></table></div>
+</div></section>
+
+<!-- 11 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Key takeaway</span>
+<h2>Fluent is not the same as correct</h2>
+<div class="card" style="background:var(--ink);color:var(--bg);font-size:1.05em">A similarity score measures how close an answer sounds to the reference. It can’t tell 42 from 420. Choose the check that matches what matters: for numbers, exact match against the source.</div>
+<div class="row">
+<div class="card" style="border-left:4px solid #4682d5"><h3>Back to LU-07</h3><p>You checked that citations support answers. Here, the “citation” is the paper’s own sentence. Check it.</p></div>
+<div class="card" style="border-left:4px solid var(--gold)"><h3>Back to Week 8</h3><p>If every output needs a human check, recount the cost before calling the model cheaper.</p></div>
+<div class="card" style="border-left:4px solid var(--ink)"><h3>Forward to LU-10</h3><p>When an assistant starts taking actions, a wrong number isn’t just a bad table entry. Evaluation gets stricter, not looser.</p></div>
+</div>
+</div></section>
+
+<!-- 12 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Your turn</span>
+<h2>Where could a high score hide a wrong answer in your project?</h2>
+<p class="lead">Nothing is saved or sent. Your answers stay on this page.</p>
+<div class="row">
+<div><h3>The field that must be exact</h3><textarea placeholder="e.g., a date, a deadline, a dose, a part number"></textarea></div>
+<div><h3>The check you’d use</h3><textarea placeholder="Exact match? Human review? Which source?"></textarea></div>
+<div><h3>One “not in the source” test</h3><textarea placeholder="A question your sources can’t answer, and the right response"></textarea></div>
+</div>
+</div></section>
+
+<!-- 13 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Discuss</span>
+<h2>Four questions for the room</h2>
+<button class="pick good"><span>1. “The model got the format right every time. Did fine-tuning work?”</span><div class="res">It worked for format, the thing it was trained on. It didn’t make the numbers correct. Name the goal before judging success.</div></button>
+<button class="pick good"><span>2. “Why did the model write ‘prospective cohort’ for a paper that never said so?”</span><div class="res">Its 600 training examples always had an answer, so it learned to always produce one. Training rewards copying the examples, including their gaps.</div></button>
+<button class="pick good"><span>3. “Who should have caught the leaky split: the builder, the reviewer, or the lab lead?”</span><div class="res">No single right answer. The builder made it; a reviewer should ask for the split list; the lab lead decides what evidence is enough. Week 13 will call this accountability.</div></button>
+<button class="pick good"><span>4. “Would ROUGE or BLEU have done better than BERTScore here?”</span><div class="res">Not much. They count shared words, and “420 scans; retrospective review” shares almost every word with “42 scans; retrospective review.” None of the three checks the fact.</div></button>
+</div></section>
+
+</div>
+<div class="bar"><button id="prev">Back</button><div class="dots" id="dots"></div><button id="next">Next</button></div>
+</div>
+<script>
+window.CASE={
+flagBtn:'Check against the papers',
+quizzes:[
+{el:'chk',score:'chkScore',opts:[['bs','BERTScore'],['ex','Exact-match number check'],['hu','A person with the paper']],suffix:' · Pick the check that matches what matters.',items:[
+["“420 scans” where the paper says 42","ex|hu","An exact-match check on numbers catches it instantly, and so would a person reading the paper. BERTScore scored it 0.97."],
+["“Prospective cohort” for a paper that states no design","hu","Only someone (or something) reading the paper can see the design isn’t stated. The reference says “not reported”; the model’s guess still sounds similar."],
+["“Scans reviewed retrospectively” vs. the reference “retrospective review of scans”","bs","Same meaning, different words: this is where BERTScore helps. An exact-match check would wrongly fail it."]
+]}],
+toggles:{
+sp:{a:'<p><b>Rows from all 100 papers were shuffled together, then 80% went to training and 20% to testing.</b></p><p>Papers have several sections, so 14 of the 20 test papers also had sections in training. The model had already seen their answers.</p><p class="nt bad">The 0.94 mostly measures memory, not how the model does on new papers.</p>',
+b:'<p><b>Papers 1–80 for training (with a development set inside them); papers 81–100, from other journals, held back as a final test.</b></p><p>Re-tested this way, the score falls to 0.86, and exact-match accuracy on sample size is 71%.</p><p class="nt ok">Lower, but honest: now you know how it does on papers it hasn’t seen.</p>'},
+dt:{a:'<p class="mono">600 examples · every one has a sample size and a design · 0 say “not reported” · labels made by one person, not double-checked</p><p class="nt bad">The model learned that every paper has an answer, so it produces one, even when it has to invent it.</p>',
+b:'<p class="mono">600 examples · about 15% say “not reported” · every number double-checked against the paper by a second person · written labeling rubric · split by paper</p><p class="nt ok">Now the data teaches restraint, the labels are reliable, and the test is fair.</p><p class="hint">The 15% share is illustrative. Match it to how often papers really leave things out.</p>'}},
+doneMsg:'Now the score has evidence behind it.'
+};
+
+</script>
+<script>
+(function(){
+var slides=[].slice.call(document.querySelectorAll('.slide')),i=0,dots=document.getElementById('dots');
+slides.forEach(function(s,n){var d=document.createElement('i');d.tabIndex=0;d.setAttribute('aria-label','Slide '+(n+1));d.onclick=function(){go(n)};d.onkeydown=function(e){if(e.key==='Enter')go(n)};dots.appendChild(d)});
+function go(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,k){s.classList.toggle('on',k===i);dots.children[k].classList.toggle('on',k===i)});
+document.getElementById('prev').disabled=i===0;document.getElementById('next').disabled=i===slides.length-1;slides[i].scrollTop=0;try{history.replaceState(null,'','#s'+(i+1))}catch(e){}}
+window.goSlide=go;
+document.getElementById('prev').onclick=function(){go(i-1)};document.getElementById('next').onclick=function(){go(i+1)};
+document.addEventListener('keydown',function(e){if(/TEXTAREA|INPUT|SELECT/.test(e.target.tagName))return;if(e.target.closest&&e.target.closest('.flyer'))return;if(e.key==='ArrowRight')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+var C=window.CASE||{};
+/* quizzes */
+(C.quizzes||[]).forEach(function(q){var el=document.getElementById(q.el),sc=document.getElementById(q.score),got=0,done=0;
+q.items.forEach(function(it){var d=document.createElement('div');d.className='q';var h='<span>'+it[0]+'</span>';q.opts.forEach(function(o){h+='<button class="opt" data-a="'+o[0]+'">'+o[1]+'</button>'});h+='<div class="fb"></div>';d.innerHTML=h;
+d.querySelectorAll('.opt').forEach(function(b){b.onclick=function(){if(d.classList.contains('done'))return;d.classList.add('done');done++;var ans=String(it[1]).split('|'),ok=ans.indexOf(b.dataset.a)>-1;if(ok)got++;
+b.classList.add(ok?'right':'wrongpick');if(!ok)ans.forEach(function(x){d.querySelector('[data-a="'+x+'"]').classList.add('right')});var fb=d.querySelector('.fb');fb.style.color=ok?'var(--ok)':'var(--alert)';fb.textContent=(ok?'Right. ':'Not quite. ')+it[2];
+sc.textContent='Score: '+got+' of '+done+(done===q.items.length?(q.suffix||''):'')}});el.appendChild(d)})});
+/* toggles */
+Object.keys(C.toggles||{}).forEach(function(g){var out=document.getElementById('tg-'+g),m=C.toggles[g];var btns=document.querySelectorAll('[data-tg="'+g+'"]');
+function set(k){btns.forEach(function(b){b.classList.toggle('on',b.dataset.k===k)});out.innerHTML=m[k]}
+btns.forEach(function(b){b.onclick=function(){set(b.dataset.k)}});set(btns[0].dataset.k)});
+/* picks */
+document.querySelectorAll('.pick').forEach(function(p){p.onclick=function(){p.classList.toggle('open')}});
+/* flyer */
+if(C.flyer){var F=C.flyer,hs=[].slice.call(document.querySelectorAll('.flyer .hs')),rv=false,fn=document.getElementById('flagN');
+function cnt(){fn.textContent='Flagged '+hs.filter(function(h){return h.classList.contains('mk')}).length+'.'}
+hs.forEach(function(h){function t(){if(rv)return;h.classList.toggle('mk');cnt()}h.addEventListener('click',t);h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();t()}})});
+document.getElementById('revF').onclick=function(){rv=!rv;var hit=0,miss=0,out=[];
+hs.forEach(function(h){var k=h.dataset.k,m=h.classList.contains('mk');h.classList.toggle('bad',rv&&!!F.bad[k]);h.classList.toggle('ok',rv&&!!F.ok[k]&&m);if(F.bad[k]&&m)hit++;if(F.ok[k]&&m)miss++;
+if(rv&&F.bad[k])out.push('<p class="nt bad">'+F.bad[k]+'</p>');if(rv&&F.ok[k]&&m)out.push('<p class="nt ok">'+F.ok[k]+'</p>')});
+document.getElementById('fNotes').innerHTML=out.join('');fn.textContent=rv?'You caught '+hit+' of '+Object.keys(F.bad).length+' errors'+(miss?' and flagged '+miss+' decoy'+(miss>1?'s':'')+'.':'.'):'';if(!rv)cnt();this.textContent=rv?'Hide errors':'Reveal errors'}}
+/* flag table */
+if(document.getElementById('log')&&document.getElementById('reveal')){var rv2=false,rows=[].slice.call(document.querySelectorAll('#log tr.flag')),nb=rows.filter(function(r){return r.dataset.bad==='1'}).length;
+function tr(r){if(rv2)return;r.classList.toggle('marked');document.getElementById('flagScore').textContent='Flagged '+document.querySelectorAll('#log tr.marked').length+' rows.'}
+rows.forEach(function(r){r.onclick=function(){tr(r)};r.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();tr(r)}}});
+document.getElementById('reveal').onclick=function(){rv2=!rv2;var hit=0,miss=0;rows.forEach(function(r){var b=r.dataset.bad==='1',m=r.classList.contains('marked');if(b&&m)hit++;if(!b&&m)miss++;r.classList.toggle('shown',rv2&&b)});
+document.querySelectorAll('#notes .note').forEach(function(n){var r=rows[+n.dataset.n-1];n.classList.toggle('on',rv2&&(r.dataset.bad==='1'||r.classList.contains('marked')))});
+this.textContent=rv2?'Hide check':(C.flagBtn||'Check against P1');document.getElementById('flagScore').textContent=rv2?'You caught '+hit+' of '+nb+' wrong rows'+(miss?' and flagged '+miss+' correct row'+(miss>1?'s':'')+'.':'.'):'Flagged '+document.querySelectorAll('#log tr.marked').length+' rows.'}}
+/* meter */
+var hc=document.querySelectorAll('.h'),N=hc.length;
+hc.forEach(function(c){c.onchange=function(){var n=document.querySelectorAll('.h:checked').length;document.getElementById('h20').textContent=n+' of '+N+' done.'+(n===N?' '+(C.doneMsg||'Done.'):'');var m=document.getElementById('m20');m.classList.toggle('full',n===N);m.textContent=n===N?'Checks done':'Human checks'}});
+var hh=parseInt((location.hash||'').replace('#s',''),10);go(hh?hh-1:0);
+})();
+</script>
+</body>
+</html>

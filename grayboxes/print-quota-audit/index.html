@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Print Quota Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F6F5;--surface:#FFFFFF;--ink:#16262B;--muted:#55686D;--line:#CBD8D6;--tray:#1F6F5C;--tray-ink:#FFFFFF;--alert:#C8372D;--alert-bg:#FBE7E4;--ok:#1F6F5C;--ok-bg:#DDF0EA;--gold:#E3A72F;--gold-bg:#FBF0D9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}}
+:root[data-theme="dark"]{--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:400 clamp(16px,1.5vw,20px)/1.55 "Source Serif 4",Georgia,serif;overflow:hidden}
+h1,h2,h3,button,.tag,th{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif}
+h1{font-size:clamp(34px,6vw,72px);line-height:1.02;margin:0 0 .4em;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(26px,3.6vw,44px);line-height:1.1;margin:0 0 .3em;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.05em;margin:0 0 .3em}
+p{margin:.4em 0}
+.deck{height:100%;display:flex;flex-direction:column}
+.stage{flex:1;position:relative;min-height:0}
+.slide{position:absolute;inset:0;padding:clamp(20px,4vw,56px) clamp(16px,6vw,88px);overflow-y:auto;display:none}
+.slide.on{display:block}
+.wrap{max-width:980px;margin:0 auto}
+.lead{color:var(--muted);font-size:1.1em;max-width:62ch}
+.tag{display:inline-block;background:var(--tray);color:var(--tray-ink);padding:.15em .7em;border-radius:99px;font-size:.8em;font-weight:700;margin-bottom:.8em}
+.bar{display:flex;align-items:center;gap:12px;padding:10px clamp(14px,4vw,40px);border-top:1px solid var(--line);background:var(--surface)}
+.bar button{background:var(--tray);color:var(--tray-ink);border:0;border-radius:8px;padding:.5em 1.1em;font-weight:700;font-size:15px;cursor:pointer}
+.bar button:disabled{opacity:.35;cursor:default}
+.dots{flex:1;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line);cursor:pointer}
+.dots i.on{background:var(--tray);transform:scale(1.3)}
+button:focus-visible,.pick:focus-visible,textarea:focus-visible,input:focus-visible,.dots i:focus-visible,tr[tabindex]:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.hint{font:600 .8em "Bricolage Grotesque",sans-serif;color:var(--muted);margin:.8em 0 .4em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:10px 0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.btn{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.5em 1.1em;font-weight:700;cursor:pointer;font-size:.95em;margin:2px 0}
+.btn.on{border-color:var(--tray);background:var(--ok-bg)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35em .8em;font:600 .9em "Bricolage Grotesque",sans-serif}
+.flow b{color:var(--tray)}
+.pick{display:block;width:100%;text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;font:inherit;cursor:pointer}
+.pick .res{display:none;margin-top:8px;font-size:.92em}
+.pick.open .res{display:block}
+.pick.bad.open{border-color:var(--alert);background:var(--alert-bg)}
+.pick.good.open{border-color:var(--ok);background:var(--ok-bg)}
+.pick.meh.open{border-color:var(--gold);background:var(--gold-bg)}
+.pick .lbl{font:700 .85em "Bricolage Grotesque",sans-serif}
+.pick.bad .lbl{color:var(--alert)}.pick.good .lbl{color:var(--ok)}.pick.meh .lbl{color:var(--ink)}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.q>span{flex:1;min-width:200px}
+.q .opt{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.3em .8em;font-weight:700;font-size:.85em;cursor:pointer}
+.q .opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.q .opt.wrongpick{border-color:var(--alert);background:var(--alert-bg)}
+.q .fb{width:100%;font-size:.9em;display:none}
+.q.done .fb{display:block}
+.tbl-wrap{overflow-x:auto;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:.85em;background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:560px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:.85em;color:var(--muted)}
+th.lab,td.lab{background:var(--ok-bg);font-weight:600}
+tr.flag{cursor:pointer}
+tr.flag:hover{background:var(--bg)}
+tr.flag.marked td{background:var(--gold-bg)}
+tr.flag.marked td.lab{background:var(--gold-bg)}
+tr.flag.shown td{background:var(--alert-bg)}
+.note{display:none;font-size:.9em;margin:6px 0;padding:8px 12px;border-left:4px solid var(--alert);background:var(--surface);border-radius:0 8px 8px 0}
+.note.on{display:block}
+.bars{margin:14px 0}
+.bars .b{display:grid;grid-template-columns:150px 1fr 56px;gap:10px;align-items:center;margin:8px 0;font:600 .85em "Bricolage Grotesque",sans-serif}
+.bars .track{height:22px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.bars .fill{height:100%;background:var(--tray);transition:width .4s}
+.bars .fill.hot{background:var(--alert)}
+.meter{height:30px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--line);margin:12px 0}
+.meter div{display:flex;align-items:center;padding:0 12px;font:700 .8em "Bricolage Grotesque",sans-serif;white-space:nowrap;transition:width .4s}
+.m80{width:80%;background:var(--tray);color:var(--tray-ink)}
+.m20{width:20%;background:var(--surface);color:var(--muted);border-left:1px solid var(--line)}
+.m20.full{background:var(--gold);color:#16262B}
+label.ck{display:flex;gap:10px;align-items:flex-start;margin:8px 0;cursor:pointer}
+label.ck input{margin-top:.45em;width:18px;height:18px;accent-color:var(--tray);flex-shrink:0}
+textarea{width:100%;min-height:110px;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:.9em;resize:vertical}
+code{font:600 .85em "Bricolage Grotesque",sans-serif;background:var(--ok-bg);padding:.1em .4em;border-radius:4px}
+.score{font:600 .85em "Bricolage Grotesque",sans-serif;color:var(--muted)}
+@media (max-width:560px){.q>span{flex-basis:100%}.bars .b{grid-template-columns:96px 1fr 44px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.flyer{width:100%;max-width:340px;display:block;border-radius:10px}
+.hs{cursor:pointer}
+.hs rect.ring{fill:transparent;stroke:transparent;stroke-width:2.5}
+.hs.mk rect.ring{stroke:#c98a12;stroke-dasharray:5 3}
+.hs.bad rect.ring{stroke:#b93535;stroke-dasharray:none}
+.hs.ok rect.ring{stroke:#2e7d4f;stroke-dasharray:none}
+.hs:focus{outline:none}.hs:focus-visible rect.ring{stroke:#4682d5}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;align-items:start}
+.src{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--tray);border-radius:0 10px 10px 0;padding:10px 14px;margin:8px 0;font-size:.92em}
+.src .m{display:block;font:600 .75em "Bricolage Grotesque",sans-serif;color:var(--muted);margin-bottom:4px}
+.letter{background:var(--gold-bg);border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-style:italic;line-height:1.6}
+.letter .pg{display:block;font:600 .72em "Bricolage Grotesque",sans-serif;font-style:normal;color:var(--muted);margin:8px 0 2px}
+.mono{font:500 .8em ui-monospace,Menlo,monospace;color:var(--muted);line-height:1.6}
+.nt{margin:6px 0;font-size:.88em}.nt.bad{color:var(--alert)}.nt.ok{color:var(--ok)}
+.btn{margin:2px 0}
+</style>
+</head>
+<body>
+<div class="deck">
+<div class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide on"><div class="wrap">
+<span class="tag">Case study · Campus information (any major)</span>
+<h1>The Print Quota Audit</h1>
+<p class="lead">Student Government asked you to post a short FAQ and a flyer about free printing before midterms. An AI tool wrote both in under a minute. Both cite sources, and both look polished.</p>
+<p class="lead">You have two sources that disagree, two runs that disagree, and a flyer that will be taped to every printer on campus.</p>
+<p class="hint">Use the arrow keys or the buttons below. Most slides ask you to click something.</p>
+</div></section>
+
+<!-- 2 -->
+<section class="slide"><div class="wrap">
+<span class="tag">The source packet</span>
+<h2>Two sources, one conflict</h2>
+<div class="src"><span class="m">S1 · Library Services FAQ · official · updated Aug 2026</span>“Each student receives 300 free print pages per semester. Color pages count as 3 pages. Print at the 4 stations on the 2nd floor of North Library.”</div>
+<div class="src"><span class="m">S2 · Student newspaper article · Feb 2025</span>“Students now get 500 free print pages a year, according to a library spokesperson.”</div>
+<p class="lead">When sources conflict, which one should win?</p>
+<button class="pick good"><span><b>S1:</b> it is official and newer.</span><div class="res"><span class="lbl">Right.</span> The office that sets the policy published it most recently. Record why it wins in your source packet.</div></button>
+<button class="pick bad"><span><b>S2:</b> 500 is the bigger number, and students will like it.</span><div class="res"><span class="lbl">No.</span> Preference isn’t evidence. S2 is older and secondhand, and it says per year, not per semester.</div></button>
+<button class="pick bad"><span><b>Average them:</b> about 400.</span><div class="res"><span class="lbl">No.</span> Averaging two claims produces a third claim that neither source makes.</div></button>
+<button class="pick bad"><span><b>Whichever one the AI cited.</b></span><div class="res"><span class="lbl">No.</span> The AI may cite the wrong source for a claim. You will see that on slide 4.</div></button>
+</div></section>
+
+<!-- 3 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Embeddings, retrieval, and variability</span>
+<h2>Same prompt, two runs</h2>
+<p class="mono">Prompt: Using only S1 and S2, explain the student print quota. Cite a source for each claim.</p>
+<p><button class="btn" data-tg="run" data-k="1">Run 1</button> <button class="btn" data-tg="run" data-k="2">Run 2</button></p>
+<div class="card" id="tg-run"></div>
+</div></section>
+
+<!-- 4 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Document test</span>
+<h2>Audit the Run 1 answer</h2>
+<p class="lead">Judge each claim against the source packet.</p>
+<div id="claims"></div>
+<p class="score" id="claimScore"></p>
+</div></section>
+
+<!-- 5 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Error log</span>
+<h2>Name the error type</h2>
+<p class="lead">A good error log says what kind of mistake happened, because the type points to the fix.</p>
+<div id="types"></div>
+<p class="score" id="typeScore"></p>
+</div></section>
+
+<!-- 6 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Image test</span>
+<h2>Media review: the generated flyer</h2>
+<p class="lead">An image tool made this flyer from the Run 1 answer. Click every part you think is wrong. There are four errors and two decoys.</p>
+<div class="grid2">
+<svg class="flyer" viewBox="0 0 320 400" role="group" aria-label="Generated flyer: click parts to flag them">
+<rect x="0" y="0" width="320" height="400" rx="10" fill="#FFF8E8" stroke="#d8cdb0"/>
+<rect x="0" y="0" width="320" height="86" rx="10" fill="#1F4E79"/><rect x="0" y="60" width="320" height="26" fill="#1F4E79"/>
+<g class="hs" data-k="spell" tabindex="0" role="button" aria-label="Headline"><rect class="ring" x="20" y="16" width="280" height="58" rx="6"/><text x="160" y="58" text-anchor="middle" font-family="Arial,sans-serif" font-size="32" font-weight="800" fill="#FFFFFF">FREE PRINTNG</text></g>
+<g class="hs" data-k="num" tabindex="0" role="button" aria-label="Page amount"><rect class="ring" x="40" y="98" width="240" height="78" rx="6"/><text x="160" y="148" text-anchor="middle" font-family="Arial,sans-serif" font-size="44" font-weight="800" fill="#1F4E79">500 PAGES</text><text x="160" y="168" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#3a3a3a">every semester</text></g>
+<g class="hs" data-k="count" tabindex="0" role="button" aria-label="Print stations"><rect class="ring" x="28" y="186" width="264" height="82" rx="6"/>
+<g fill="#6b7785"><rect x="62" y="198" width="48" height="30" rx="4"/><rect x="70" y="190" width="32" height="10" fill="#ffffff" stroke="#6b7785"/><rect x="136" y="198" width="48" height="30" rx="4"/><rect x="144" y="190" width="32" height="10" fill="#ffffff" stroke="#6b7785"/><rect x="210" y="198" width="48" height="30" rx="4"/><rect x="218" y="190" width="32" height="10" fill="#ffffff" stroke="#6b7785"/></g>
+<text x="160" y="254" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#3a3a3a">4 print stations · North Library, 2nd floor</text></g>
+<g class="hs" data-k="color" tabindex="0" role="button" aria-label="Color rule"><rect class="ring" x="40" y="276" width="240" height="32" rx="6"/><text x="160" y="298" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#3a3a3a">Color pages count as 3</text></g>
+<g class="hs" data-k="dean" tabindex="0" role="button" aria-label="Approval line"><rect class="ring" x="40" y="314" width="240" height="32" rx="6"/><text x="160" y="336" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-style="italic" fill="#3a3a3a">Approved by Dean Patel</text></g>
+<g class="hs" data-k="foot" tabindex="0" role="button" aria-label="Footer"><rect class="ring" x="40" y="352" width="240" height="32" rx="6"/><text x="160" y="373" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#6b6b6b">Library Services · Fall 2026</text></g>
+</svg>
+<div>
+<p class="hint">Media review checklist</p>
+<label class="ck"><input type="checkbox"> Is the text spelled and rendered correctly?</label>
+<label class="ck"><input type="checkbox"> Do the numbers match the source packet?</label>
+<label class="ck"><input type="checkbox"> Do counts in the picture match the words?</label>
+<label class="ck"><input type="checkbox"> Are claims about people supported?</label>
+<p><button class="btn" id="revF">Reveal errors</button> <span class="score" id="flagN">Flagged 0.</span></p>
+<div id="fNotes"></div>
+</div>
+</div>
+</div></section>
+
+<!-- 7 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Tokens and cost</span>
+<h2>Why not just paste the whole handbook?</h2>
+<p class="lead">A teammate suggests pasting the 40-page library handbook so the AI “has everything.” Compare the two approaches.</p>
+<p><button class="btn" data-tg="tok" data-k="all">Paste the whole handbook</button> <button class="btn" data-tg="tok" data-k="key">Paste S1 and S2 only</button></p>
+<div class="card" id="tg-tok"></div>
+</div></section>
+
+<!-- 8 -->
+<section class="slide"><div class="wrap">
+<span class="tag">The prompt changelog</span>
+<h2>Log every failure and its fix</h2>
+<p><button class="btn" data-tg="it" data-k="1">Iteration 1</button> <button class="btn" data-tg="it" data-k="2">Iteration 2</button> <button class="btn" data-tg="it" data-k="3">Iteration 3</button></p>
+<div class="card" id="tg-it"></div>
+<p class="hint">Better prompts reduce errors. They don’t remove the need to check.</p>
+</div></section>
+
+<!-- 9 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Make a defensible decision</span>
+<h2>Post, revise, or reject?</h2>
+<p class="lead">The FAQ has three bad claims and the flyer has four errors. What do you do?</p>
+<button class="pick bad"><span>“Post both. The answer cites a source, and the flyer looks professional.”</span><div class="res"><span class="lbl">Not defensible.</span> A citation that doesn’t support its claim is worse than none. Polish is not evidence.</div></button>
+<button class="pick bad"><span>“Ask the model ‘Are you sure?’ and post whatever it says next.”</span><div class="res"><span class="lbl">Not defensible.</span> That is just another run. Variability means a second answer is not verification. Only the source packet is.</div></button>
+<button class="pick good"><span>“Revise: 300 pages per semester from S1, drop the rollover and Dean claims, fix the flyer text by hand, and keep the error log.”</span><div class="res"><span class="lbl">Defensible.</span> Every change traces to evidence, S1 wins because it is official and newer, and the log shows what the tool got wrong.</div></button>
+<button class="pick meh"><span>“Reject both and write them from scratch.”</span><div class="res"><span class="lbl">Defensible but costly.</span> It is safe, but one claim was right and the layout was usable. Reject when errors are frequent, risky, or hard to find.</div></button>
+<p class="hint">Say it in one sentence that names the evidence: “I revised the FAQ because S1 (Aug 2026, official) contradicts claim 1, and claims 3 and 4 appear in no source.”</p>
+</div></section>
+
+<!-- 10 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Before you post</span>
+<h2>The AI drafts. You verify.</h2>
+<p class="lead">Check each task you would complete before the FAQ and flyer go up.</p>
+<div class="meter"><div class="m80">AI: FAQ and flyer drafted in under a minute</div><div class="m20" id="m20">Human checks</div></div>
+<label class="ck"><input type="checkbox" class="h"> Build the source packet: title, owner, date, exact excerpt, and which source wins</label>
+<label class="ck"><input type="checkbox" class="h"> Save the prompt, tool, date, and every run you relied on</label>
+<label class="ck"><input type="checkbox" class="h"> Check each claim, and log the error type and fix</label>
+<label class="ck"><input type="checkbox" class="h"> Review the flyer for text, numbers, counts, and claims about people</label>
+<p id="h20" class="hint">0 of 4 done.</p>
+</div></section>
+
+<!-- 11 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Discuss</span>
+<h2>Three questions for the room</h2>
+<button class="pick good"><span>1. Run 2 gave the right number. Why can’t you just use Run 2?</span><div class="res">You only know Run 2 is right because you checked it against S1. Without the check, you’d be picking whichever run you liked.</div></button>
+<button class="pick good"><span>2. Claim 1 cited S1, but the number came from S2. Why is a wrong citation worse than none?</span><div class="res">It makes a false claim look verified. A reader who trusts the citation won’t check, and the error spreads.</div></button>
+<button class="pick good"><span>3. What should stay human even if the AI got everything right?</span><div class="res">Deciding which source is authoritative, what students need to know, and putting your name on what gets posted.</div></button>
+</div></section>
+
+</div>
+<div class="bar"><button id="prev">Back</button><div class="dots" id="dots"></div><button id="next">Next</button></div>
+</div>
+<script>
+window.CASE={
+quizzes:[
+{el:'claims',score:'claimScore',opts:[['sup','Supported'],['con','Contradicted'],['non','Not in sources']],suffix:' · Claims 1, 3, and 4 go in the error log.',items:[
+["1. “Students get 500 free print pages per semester [S1].”","con","S1 says 300 per semester. The 500 comes from the older S2, which said per year."],
+["2. “Color pages count as 3 pages.”","sup","S1 says this word for word. Keep it."],
+["3. “Unused pages roll over to the next semester.”","non","Neither source mentions rollover. This is an invented detail."],
+["4. “Dean Patel said the quota will double in 2027.”","non","No source names a dean or a 2027 change. This is an invented quote about a person."]
+]},
+{el:'types',score:'typeScore',opts:[['cite','Wrong or outdated source'],['inv','Invented detail'],['quote','Invented quote or person'],['var','Variability']],suffix:' · The type points to the fix.',items:[
+["Claim 1: “500 per semester [S1]”","cite","The number came from S2 (older, per year) but was labeled S1. Fix: require the exact excerpt for each claim, and prefer the newest official source."],
+["Claim 3: “Unused pages roll over”","inv","No source says this. Fix: tell the model to write “not in sources” instead of filling gaps."],
+["Claim 4: “Dean Patel said…”","quote","A quote attributed to a person who appears in no source. Fix: no quotes or names unless they appear in the packet."],
+["Run 1 says 500, and Run 2 says 300","var","The same prompt gave different answers. Fix: record each run, and judge them against the packet, not each other."]
+]}],
+toggles:{
+run:{'1':'<h3>Run 1</h3><div class="flow"><span>Question: “free print pages”</span><b>→</b><span>Retrieved first: S2</span><b>→</b><span>Answer</span></div><p class="mono">“Students get 500 free print pages per semester [S1]. Color pages count as 3 pages. Unused pages roll over to the next semester. Dean Patel said the quota will double in 2027.”</p><p>Both sources sit close to the question in embedding space, and this time search ranked the older S2 first. <b>Relevant is not the same as current or correct.</b> Then the answer mislabeled it as S1.</p>',
+'2':'<h3>Run 2</h3><div class="flow"><span>Question: “free print pages”</span><b>→</b><span>Retrieved first: S1</span><b>→</b><span>Answer</span></div><p class="mono">“Each student receives 300 free print pages per semester [S1]. Color pages count as 3 pages [S1].”</p><p>Same prompt, different answer. That is <b>variability</b>. Run 2 happens to be right, but you only know that because you checked it against S1. Record both runs.</p>'},
+tok:{all:'<div class="meter" style="margin-top:0"><div style="width:100%;background:var(--alert);color:#fff">About 30,000 input tokens</div></div><p>You pay for every token on every run, and the two sentences that matter are buried among 40 pages. Evidence in the middle of a long input is easier for a model to miss, and harder for you to trace.</p>',
+key:'<div class="meter" style="margin-top:0"><div style="width:6%;background:var(--tray);color:var(--tray-ink)"></div><div style="flex:1;font-weight:600;color:var(--muted)">About 150 input tokens</div></div><p>Cheaper, faster, and every claim can be traced to one of two excerpts. Retrieval and chunking exist for this reason: give the model the evidence it needs, not everything you have.</p>'},
+it:{'1':'<h3>Failed: wrong source cited</h3><p>“500 per semester [S1]” came from S2.</p><p><b>Prompt fix:</b> <code>For each claim, quote the exact excerpt and name its source. If sources conflict, use the newest official source and say that they conflict.</code></p>',
+'2':'<h3>Failed: invented details</h3><p>Rollover, a dean, and 2027 appeared from nowhere.</p><p><b>Prompt fix:</b> <code>Use only S1 and S2. If something isn’t in them, write “not in sources.” Do not name people unless they appear in the sources.</code></p>',
+'3':'<h3>Failed: a garbled flyer</h3><p>A misspelled headline, the wrong number, and 3 printers for “4 stations.”</p><p><b>Prompt fix:</b> <code>Generate a background image with no text and no countable objects.</code> Then add the headline, numbers, and details by hand from the verified FAQ.</p>'}},
+flyer:{bad:{spell:'Headline: “PRINTNG” is misspelled. Image models often garble text.',num:'“500 pages every semester” contradicts S1 (300 per semester). The flyer copied the FAQ’s error.',count:'The picture shows 3 printers, but the caption says 4 stations. Counts in images need checking.',dean:'“Approved by Dean Patel” appears in no source. It is an unsupported claim about a person.'},
+ok:{color:'Decoy: “Color pages count as 3” matches S1.',foot:'Decoy: “Library Services · Fall 2026” is consistent with S1.'}},
+doneMsg:'Ready to post.'
+};
+
+</script>
+<script>
+(function(){
+var slides=[].slice.call(document.querySelectorAll('.slide')),i=0,dots=document.getElementById('dots');
+slides.forEach(function(s,n){var d=document.createElement('i');d.tabIndex=0;d.setAttribute('aria-label','Slide '+(n+1));d.onclick=function(){go(n)};d.onkeydown=function(e){if(e.key==='Enter')go(n)};dots.appendChild(d)});
+function go(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,k){s.classList.toggle('on',k===i);dots.children[k].classList.toggle('on',k===i)});
+document.getElementById('prev').disabled=i===0;document.getElementById('next').disabled=i===slides.length-1;slides[i].scrollTop=0;try{history.replaceState(null,'','#s'+(i+1))}catch(e){}}
+window.goSlide=go;
+document.getElementById('prev').onclick=function(){go(i-1)};document.getElementById('next').onclick=function(){go(i+1)};
+document.addEventListener('keydown',function(e){if(/TEXTAREA|INPUT|SELECT/.test(e.target.tagName))return;if(e.target.closest&&e.target.closest('.flyer'))return;if(e.key==='ArrowRight')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+var C=window.CASE||{};
+/* quizzes */
+(C.quizzes||[]).forEach(function(q){var el=document.getElementById(q.el),sc=document.getElementById(q.score),got=0,done=0;
+q.items.forEach(function(it){var d=document.createElement('div');d.className='q';var h='<span>'+it[0]+'</span>';q.opts.forEach(function(o){h+='<button class="opt" data-a="'+o[0]+'">'+o[1]+'</button>'});h+='<div class="fb"></div>';d.innerHTML=h;
+d.querySelectorAll('.opt').forEach(function(b){b.onclick=function(){if(d.classList.contains('done'))return;d.classList.add('done');done++;var ok=b.dataset.a===it[1];if(ok)got++;
+b.classList.add(ok?'right':'wrongpick');if(!ok)d.querySelector('[data-a="'+it[1]+'"]').classList.add('right');var fb=d.querySelector('.fb');fb.style.color=ok?'var(--ok)':'var(--alert)';fb.textContent=(ok?'Right. ':'Not quite. ')+it[2];
+sc.textContent='Score: '+got+' of '+done+(done===q.items.length?(q.suffix||''):'')}});el.appendChild(d)})});
+/* toggles */
+Object.keys(C.toggles||{}).forEach(function(g){var out=document.getElementById('tg-'+g),m=C.toggles[g];var btns=document.querySelectorAll('[data-tg="'+g+'"]');
+function set(k){btns.forEach(function(b){b.classList.toggle('on',b.dataset.k===k)});out.innerHTML=m[k]}
+btns.forEach(function(b){b.onclick=function(){set(b.dataset.k)}});set(btns[0].dataset.k)});
+/* picks */
+document.querySelectorAll('.pick').forEach(function(p){p.onclick=function(){p.classList.toggle('open')}});
+/* flyer */
+if(C.flyer){var F=C.flyer,hs=[].slice.call(document.querySelectorAll('.flyer .hs')),rv=false,fn=document.getElementById('flagN');
+function cnt(){fn.textContent='Flagged '+hs.filter(function(h){return h.classList.contains('mk')}).length+'.'}
+hs.forEach(function(h){function t(){if(rv)return;h.classList.toggle('mk');cnt()}h.addEventListener('click',t);h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();t()}})});
+document.getElementById('revF').onclick=function(){rv=!rv;var hit=0,miss=0,out=[];
+hs.forEach(function(h){var k=h.dataset.k,m=h.classList.contains('mk');h.classList.toggle('bad',rv&&!!F.bad[k]);h.classList.toggle('ok',rv&&!!F.ok[k]&&m);if(F.bad[k]&&m)hit++;if(F.ok[k]&&m)miss++;
+if(rv&&F.bad[k])out.push('<p class="nt bad">'+F.bad[k]+'</p>');if(rv&&F.ok[k]&&m)out.push('<p class="nt ok">'+F.ok[k]+'</p>')});
+document.getElementById('fNotes').innerHTML=out.join('');fn.textContent=rv?'You caught '+hit+' of '+Object.keys(F.bad).length+' errors'+(miss?' and flagged '+miss+' decoy'+(miss>1?'s':'')+'.':'.'):'';if(!rv)cnt();this.textContent=rv?'Hide errors':'Reveal errors'}}
+/* meter */
+var hc=document.querySelectorAll('.h'),N=hc.length;
+hc.forEach(function(c){c.onchange=function(){var n=document.querySelectorAll('.h:checked').length;document.getElementById('h20').textContent=n+' of '+N+' done.'+(n===N?' '+(C.doneMsg||'Done.'):'');var m=document.getElementById('m20');m.classList.toggle('full',n===N);m.textContent=n===N?'Checks done':'Human checks'}});
+var hh=parseInt((location.hash||'').replace('#s',''),10);go(hh?hh-1:0);
+})();
+</script>
+</body>
+</html>

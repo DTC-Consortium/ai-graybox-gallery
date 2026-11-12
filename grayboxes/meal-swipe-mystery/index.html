@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Meal Swipe Mystery</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F6F5;--surface:#FFFFFF;--ink:#16262B;--muted:#55686D;--line:#CBD8D6;--tray:#1F6F5C;--tray-ink:#FFFFFF;--alert:#C8372D;--alert-bg:#FBE7E4;--ok:#1F6F5C;--ok-bg:#DDF0EA;--gold:#E3A72F;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F}}
+:root[data-theme="dark"]{--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:400 clamp(16px,1.5vw,20px)/1.55 "Source Serif 4",Georgia,serif;overflow:hidden}
+h1,h2,h3,button,.tag{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif}
+h1{font-size:clamp(34px,6vw,72px);line-height:1.02;margin:0 0 .4em;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(26px,3.6vw,44px);line-height:1.1;margin:0 0 .3em;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.05em;margin:0 0 .3em}
+p{margin:.4em 0}
+.deck{height:100%;display:flex;flex-direction:column}
+.stage{flex:1;position:relative;min-height:0}
+.slide{position:absolute;inset:0;padding:clamp(20px,4vw,56px) clamp(18px,6vw,88px);overflow-y:auto;display:none}
+.slide.on{display:block}
+.wrap{max-width:980px;margin:0 auto}
+.lead{color:var(--muted);font-size:1.1em;max-width:62ch}
+.tag{display:inline-block;background:var(--tray);color:var(--tray-ink);padding:.15em .7em;border-radius:99px;font-size:.8em;font-weight:700;margin-bottom:.8em}
+.bar{display:flex;align-items:center;gap:12px;padding:10px clamp(14px,4vw,40px);border-top:1px solid var(--line);background:var(--surface)}
+.bar button{background:var(--tray);color:var(--tray-ink);border:0;border-radius:8px;padding:.5em 1.1em;font-weight:700;font-size:15px;cursor:pointer}
+.bar button:disabled{opacity:.35;cursor:default}
+.dots{flex:1;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line);cursor:pointer}
+.dots i.on{background:var(--tray);transform:scale(1.3)}
+button:focus-visible,.pick:focus-visible,textarea:focus-visible,input:focus-visible,.dots i:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.hint{font:600 .8em "Bricolage Grotesque",sans-serif;color:var(--muted);margin:.8em 0 .4em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:10px 0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.btn{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.5em 1.1em;font-weight:700;cursor:pointer;font-size:.95em}
+.btn.on{border-color:var(--tray);background:var(--ok-bg)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35em .8em;font:600 .9em "Bricolage Grotesque",sans-serif}
+.flow b{color:var(--tray)}
+.pick{display:block;width:100%;text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;font:inherit;cursor:pointer}
+.pick .res{display:none;margin-top:8px;font-size:.92em}
+.pick.open .res{display:block}
+.pick.bad.open{border-color:var(--alert);background:var(--alert-bg)}
+.pick.good.open{border-color:var(--ok);background:var(--ok-bg)}
+.pick .lbl{font:700 .85em "Bricolage Grotesque",sans-serif}
+.pick.bad .lbl{color:var(--alert)}.pick.good .lbl{color:var(--ok)}
+.chip{display:inline;background:none;border:0;border-bottom:3px solid var(--gold);color:inherit;font:inherit;padding:0 1px;cursor:pointer}
+.chip.red{background:var(--ink);color:var(--ink);border-color:var(--ink);border-radius:3px;user-select:none}
+.chip.wrong{background:var(--alert-bg);border-color:var(--alert)}
+.meter{height:30px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--line);margin:12px 0}
+.meter div{display:flex;align-items:center;padding:0 12px;font:700 .8em "Bricolage Grotesque",sans-serif;white-space:nowrap;transition:width .4s}
+.m80{width:80%;background:var(--tray);color:var(--tray-ink)}
+.m20{width:20%;background:var(--surface);color:var(--muted);border-left:1px solid var(--line)}
+.m20.full{background:var(--gold);color:#16262B}
+label.ck{display:flex;gap:10px;align-items:flex-start;margin:8px 0;cursor:pointer}
+label.ck input{margin-top:.45em;width:18px;height:18px;accent-color:var(--tray)}
+textarea{width:100%;min-height:110px;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:.9em;resize:vertical}
+.step{display:none}.step.on{display:block}
+code{font:600 .85em "Bricolage Grotesque",sans-serif;background:var(--ok-bg);padding:.1em .4em;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="deck">
+<div class="stage" id="stage">
+
+<section class="slide on"><div class="wrap">
+<span class="tag">Case study · Sociology and public policy</span>
+<h1>The Meal Swipe Mystery</h1>
+<p class="lead">Your university has 400 students’ stories about skipped meals, 30 research sources, and a report due Friday. Student Government just asked you to find the answer.</p>
+<p class="lead">Use the arrow keys or the buttons below. Most slides ask you to click something.</p>
+</div></section>
+
+<section class="slide"><div class="wrap">
+<span class="tag">Search vs. delegation</span>
+<h2>Same question, two very different jobs</h2>
+<p class="lead">Choose how you will tackle the report.</p>
+<p><button class="btn on" data-mode="s">Search it</button> <button class="btn" data-mode="d">Delegate it</button></p>
+<div class="card" id="modeOut"></div>
+</div></section>
+
+<section class="slide"><div class="wrap">
+<span class="tag">The raw material</span>
+<h2>What 400 students actually wrote</h2>
+<div class="card">“Dining hall closes at 7:30 and my lab ends at 7:45. So I just don’t eat.”</div>
+<div class="card">“I have a plan but I’m a commuter. Paying for a swipe on top of gas feels dumb.”</div>
+<div class="card">“Honestly I was dying for a swipe and the line was 40 people deep.”</div>
+<p class="lead">Notice that these students are saying different things. One is about schedules, one about money, and one is just slang. Keep that in mind for the next slide.</p>
+</div></section>
+
+<section class="slide"><div class="wrap">
+<span class="tag">Failure modes</span>
+<h2>Spot the failure: your AI’s first draft</h2>
+<p class="lead">Click each line from the AI’s report. Which ones can you trust?</p>
+<button class="pick bad"><span>“A 2021 Stanford study found that 68% of freshmen skip dinner.”</span><div class="res"><span class="lbl">Hallucination.</span> No such study is in your 30 sources. Fix: only use uploaded sources and cite the page for every claim.</div></button>
+<button class="pick bad"><span>“The dining hall closes before my lab ends” → coded as <i>dislikes food quality</i>.</span><div class="res"><span class="lbl">Contextual blindness.</span> The student described a schedule conflict, not taste. The AI matched words without understanding the situation.</div></button>
+<button class="pick bad"><span>Commuters and student parents (n=9) → “Other.”</span><div class="res"><span class="lbl">Algorithmic bias.</span> Patterns from the majority drown out small groups, who may be the ones most at risk.</div></button>
+<button class="pick bad"><span>“Re-sorting categories… pass 14… pass 15…”</span><div class="res"><span class="lbl">Unguided multi-step logic.</span> With no stopping rule, the agent loops and loses the objective.</div></button>
+<button class="pick good"><span>“Likely themes: cost, schedule conflicts, dining hours, stigma.”</span><div class="res"><span class="lbl">Plausible, but still a hypothesis.</span> It looks sensible, so you still check it against the raw responses.</div></button>
+</div></section>
+
+<section class="slide"><div class="wrap">
+<span class="tag">Rules of engagement</span>
+<h2>Scrub before you upload</h2>
+<p class="lead">This response is about to go into a public AI tool. Click every piece that identifies a person. Beware of decoys.</p>
+<div class="card" id="pii">“Hi, I’m <button class="chip" data-p="1">Jordan Ellis</button> (<button class="chip" data-p="1">ID 4471829</button>). I live in <button class="chip" data-p="1">Hamilton Hall, room 212</button> and I skip dinner because <button class="chip" data-p="0">my library shift ends at 8</button> and <button class="chip" data-p="0">the dining hall is across campus</button>.”</div>
+<p id="piiMsg" class="hint">Redacted 0 of 3 identifiers.</p>
+<div class="card"><h3>Every project also needs an AI Usage Disclosure Statement</h3><p>“I used [tool] to sort survey responses into themes. My key prompts were [paste]. I verified citations and spot-checked [number] responses by hand.”</p></div>
+</div></section>
+
+<section class="slide"><div class="wrap">
+<span class="tag">The prompt changelog</span>
+<h2>Your grade is how you handle failure</h2>
+<p><button class="btn on" data-it="0">Iteration 1</button> <button class="btn" data-it="1">Iteration 2</button> <button class="btn" data-it="2">Iteration 3</button></p>
+<div class="card step on"><h3>Failed: hallucination</h3><p>The AI invented a study with a statistic.</p><p><b>Prompt fix:</b> <code>Only use the 30 uploaded sources. Quote the page or section for every claim. If it isn’t there, say so.</code></p></div>
+<div class="card step"><h3>Failed: contextual blindness</h3><p>It coded a schedule conflict as taste, and read “dying for a swipe” literally.</p><p><b>Prompt fix:</b> <code>Here is a glossary of campus terms. List any response you are unsure about instead of guessing.</code></p></div>
+<div class="card step"><h3>Failed: bias and runaway loops</h3><p>Small groups were lumped into “Other,” and the sorting never stopped.</p><p><b>Prompt fix:</b> <code>Make two passes only. Create a separate theme for minority experiences. Stop after pass two.</code></p></div>
+</div></section>
+
+<section class="slide"><div class="wrap">
+<span class="tag">The 80/20 rule</span>
+<h2>The AI got you to 80% in minutes</h2>
+<p class="lead">The last 20% is yours. Check each task you complete.</p>
+<div class="meter"><div class="m80">Machine speed: draft, synthesis, structure</div><div class="m20" id="m20">Human 20%</div></div>
+<label class="ck"><input type="checkbox" class="h"> Spot-check 40 coded responses against the originals</label>
+<label class="ck"><input type="checkbox" class="h"> Look up every citation</label>
+<label class="ck"><input type="checkbox" class="h"> Ask who is hiding in “Other,” then decide what the findings mean for policy</label>
+<p id="h20" class="hint">0 of 3 done.</p>
+</div></section>
+
+<section class="slide"><div class="wrap">
+<span class="tag">Your Opportunity Matrix</span>
+<h2>Now try it in your own field</h2>
+<p class="lead">List three time-consuming problems from your major. Nothing is saved or sent. Your answers stay on this page.</p>
+<div class="row">
+<div><h3>The problem</h3><textarea placeholder="e.g., Coding 80 interview transcripts for themes"></textarea></div>
+<div><h3>The human baseline</h3><textarea placeholder="How do you do it today, and how many hours does it take?"></textarea></div>
+<div><h3>The AI-assisted result</h3><textarea placeholder="What would you delegate, and what must stay with you?"></textarea></div>
+</div>
+</div></section>
+
+<section class="slide"><div class="wrap">
+<span class="tag">Discuss</span>
+<h2>Three questions for the room</h2>
+<button class="pick good"><span>1. Which failure mode would be hardest to catch if you hadn’t read the raw responses?</span><div class="res">Bias and contextual blindness. Both look reasonable in a tidy summary. You only see them by knowing the source data.</div></button>
+<button class="pick good"><span>2. The AI never made a grammar error. Why does that matter?</span><div class="res">Fluent writing is not evidence of accuracy. Confidence and correctness are separate things.</div></button>
+<button class="pick good"><span>3. What should stay human even if the AI were perfectly accurate?</span><div class="res">Deciding what the problem is, setting the constraints, and judging what the findings mean for real students.</div></button>
+</div></section>
+
+</div>
+<div class="bar"><button id="prev">Back</button><div class="dots" id="dots"></div><button id="next">Next</button></div>
+</div>
+<script>
+(function(){
+var slides=[].slice.call(document.querySelectorAll('.slide')),i=0,dots=document.getElementById('dots');
+slides.forEach(function(s,n){var d=document.createElement('i');d.tabIndex=0;d.setAttribute('aria-label','Slide '+(n+1));d.onclick=function(){go(n)};d.onkeydown=function(e){if(e.key==='Enter')go(n)};dots.appendChild(d)});
+function go(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,k){s.classList.toggle('on',k===i);dots.children[k].classList.toggle('on',k===i)});
+document.getElementById('prev').disabled=i===0;document.getElementById('next').disabled=i===slides.length-1;slides[i].scrollTop=0;try{history.replaceState(null,'','#s'+(i+1))}catch(e){}}
+document.getElementById('prev').onclick=function(){go(i-1)};document.getElementById('next').onclick=function(){go(i+1)};
+document.addEventListener('keydown',function(e){if(/TEXTAREA|INPUT/.test(e.target.tagName))return;if(e.key==='ArrowRight')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+var modes={s:'<h3>Search</h3><div class="flow"><span>Input</span><b>→</b><span>Search</span><b>→</b><span>10 links</span></div><p>Googling “why do students skip meals” gives you links. You still read, sort, count, and write everything yourself, by hand.</p>',
+d:'<h3>Delegation</h3><div class="flow"><span>Goal and constraints</span><b>→</b><span>Agent reasons</span><b>→</b><span>Uses tools</span><b>→</b><span>Iterates</span><b>→</b><span>Actionable output</span></div><p>You hand over a multi-step job: read 400 responses, propose themes, sort them, count, and draft a summary table. Your role shifts from user to workflow manager.</p>'};
+var mo=document.getElementById('modeOut');mo.innerHTML=modes.s;
+document.addEventListener('click',function(e){var t=e.target;
+if(t.dataset.mode){document.querySelectorAll('[data-mode]').forEach(function(b){b.classList.toggle('on',b===t)});mo.innerHTML=modes[t.dataset.mode]}
+var p=t.closest('.pick');if(p)p.classList.toggle('open');
+if(t.dataset.it){document.querySelectorAll('[data-it]').forEach(function(b){b.classList.toggle('on',b===t)});document.querySelectorAll('.step').forEach(function(s,k){s.classList.toggle('on',k==t.dataset.it)})}
+if(t.classList.contains('chip')){if(t.dataset.p==='1'){t.classList.add('red')}else{t.classList.add('wrong');t.title='Not identifying'}
+var n=document.querySelectorAll('#pii .chip.red').length,w=document.querySelectorAll('#pii .chip.wrong').length;
+document.getElementById('piiMsg').textContent='Redacted '+n+' of 3 identifiers.'+(w?' Decoys flagged: '+w+' (that detail is not identifying).':'')+(n===3?' All three identifiers removed, so it is safe to upload.':'')}
+});
+document.querySelectorAll('.h').forEach(function(c){c.onchange=function(){var n=document.querySelectorAll('.h:checked').length;document.getElementById('h20').textContent=n+' of 3 done.'+(n===3?' You earned the last 20%.':'');var m=document.getElementById('m20');m.classList.toggle('full',n===3);m.textContent=n===3?'Human 20% done':'Human 20%'}});
+var h=parseInt((location.hash||'').replace('#s',''),10);go(h?h-1:0);
+})();
+</script>
+</body>
+</html>
