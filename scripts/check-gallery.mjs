@@ -5,14 +5,16 @@
  *
  * Checks that every entry has the required fields, that slugs are unique and
  * URL-safe, that each thumbnail file exists and is 16:9-ish, and (unless
- * --offline) that each deck URL and repo URL still answers. This is what the
+ * --offline) that each deck URL and repo URL still answers. A deck hosted in
+ * this repository under grayboxes/ is checked on disk instead, online or not:
+ * its public URL doesn't exist until the pull request adding it is merged. This is what the
  * `check` job in CI runs on every pull request, so a broken link or a missing
  * thumbnail is caught in review rather than on the live gallery.
  */
 
 import { readFile, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, sep } from 'node:path';
 
 const root = resolve( dirname( fileURLToPath( import.meta.url ) ), '..' );
 const offline = process.argv.includes( '--offline' );
@@ -55,6 +57,42 @@ async function reachable( url ) {
 		return res.status;
 	} catch ( error ) {
 		return error.message;
+	}
+}
+
+/*
+ * Where this repository is published and browsed. An entry whose `url` or
+ * `repo` points inside either one refers to a file in this checkout, so check
+ * the file -- a network request would 404 on the very pull request that adds
+ * the deck, and pass forever after even if the file were later deleted.
+ */
+const SELF_SITE = 'https://dtc-consortium.github.io/ai-graybox-gallery/';
+const SELF_REPO = 'https://github.com/DTC-Consortium/ai-graybox-gallery/tree/main/';
+
+/** Repo-relative path a self-hosted URL refers to, or null for an external URL. */
+function localPath( url ) {
+	const lower = url.toLowerCase();
+	for ( const prefix of [ SELF_SITE, SELF_REPO ] ) {
+		if ( ! lower.startsWith( prefix.toLowerCase() ) ) continue;
+		const rest = decodeURIComponent( url.slice( prefix.length ).replace( /[?#].*$/, '' ) );
+		// The guide deck is built by CI, not committed; leave it to the network check.
+		if ( rest === 'guide' || rest.startsWith( 'guide/' ) ) return null;
+		return rest;
+	}
+	return null;
+}
+
+/** True if `rel` is a file, or a directory holding an index.html, in this checkout. */
+async function existsLocally( rel, wantPage ) {
+	const path = resolve( root, rel );
+	if ( path !== root && ! path.startsWith( root + sep ) ) return false;
+	try {
+		const info = await stat( path );
+		if ( ! info.isDirectory() ) return true;
+		if ( ! wantPage ) return true;
+		return ( await stat( join( path, 'index.html' ) ) ).isFile();
+	} catch {
+		return false;
 	}
 }
 
@@ -101,9 +139,19 @@ for ( const entry of data.entries ) {
 		}
 	}
 
+	for ( const field of [ 'url', 'repo' ] ) {
+		if ( ! entry[ field ] ) continue;
+		const rel = localPath( entry[ field ] );
+		if ( rel === null ) continue;
+		// A deck URL must resolve to a page; a repo URL may be a folder.
+		if ( ! await existsLocally( rel, field === 'url' ) )
+			problem( slug, `${field} ${entry[ field ]} -- nothing at ${rel || '.'} in this repository` );
+	}
+
 	if ( ! offline ) {
 		for ( const field of [ 'url', 'repo' ] ) {
 			if ( ! entry[ field ] ) continue;
+			if ( localPath( entry[ field ] ) !== null ) continue;
 			const status = await reachable( entry[ field ] );
 			// A Slidev deck deep link is routinely served as the SPA fallback
 			// with a 404 status, so only flag what is unambiguously broken.

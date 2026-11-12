@@ -116,6 +116,37 @@ Pick a **thumbnail slide that shows the concept**, not the title slide. Use
 - [ ] `npm run check` passes
 - [ ] `gallery.json` still parses
 
+## Already have the deck as an HTML file?
+
+If your gray box is already built as **one self-contained `.html` file** — its
+styles and scripts inline, nothing loaded from a sibling file — you can skip
+steps 1, 2 and 4. The gallery hosts it for you, at its own URL.
+
+```bash
+# fork and clone ai-graybox-gallery as in step 5, then
+mkdir -p grayboxes/your-graybox
+cp ~/Downloads/YourDeck.html grayboxes/your-graybox/index.html
+
+# capture a thumbnail straight from the file
+npm run thumb:html -- grayboxes/your-graybox/index.html 5 \
+  files/thumbs/your-graybox.png
+```
+
+In your `gallery.json` entry, point `url` and `repo` at the folder:
+
+```json
+"url": "https://dtc-consortium.github.io/ai-graybox-gallery/grayboxes/your-graybox/",
+"repo": "https://github.com/DTC-Consortium/ai-graybox-gallery/tree/main/grayboxes/your-graybox",
+```
+
+`npm run check` verifies those two against the files in your branch, since the
+public URL does not exist until the pull request is merged. Commit the file
+exactly as you built it. Step 3 still applies: say which license the deck is
+under, on its title slide and in the entry's `license` field.
+
+`thumb:html` expects the deck to mark its slides `.slide`, the visible one
+`.slide.on`, and to step forward on the right arrow key.
+
 ## What gets reviewed
 
 Maintainers check that the deck is a gray box rather than a lecture, that it

@@ -32,7 +32,9 @@ for ( const name of [ 'index.html', 'gallery.json', 'README.md', 'CONTRIBUTING.m
 	await cp( join( root, name ), join( site, name ) );
 }
 
-for ( const dir of [ 'files', 'template' ] ) {
+// grayboxes/ holds the prebuilt single-file decks the gallery hosts itself;
+// each is served from its own URL, <site>/grayboxes/<slug>/.
+for ( const dir of [ 'files', 'template', 'grayboxes' ] ) {
 	await cp( join( root, dir ), join( site, dir ), { recursive: true } );
 }
 

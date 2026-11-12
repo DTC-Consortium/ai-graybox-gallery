@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Vitals Upload</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F6F5;--surface:#FFFFFF;--ink:#16262B;--muted:#55686D;--line:#CBD8D6;--tray:#1F6F5C;--tray-ink:#FFFFFF;--alert:#C8372D;--alert-bg:#FBE7E4;--ok:#1F6F5C;--ok-bg:#DDF0EA;--gold:#E3A72F;--gold-bg:#FBF0D9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}}
+:root[data-theme="dark"]{--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:400 clamp(16px,1.5vw,20px)/1.55 "Source Serif 4",Georgia,serif;overflow:hidden}
+h1,h2,h3,button,.tag,th{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif}
+h1{font-size:clamp(34px,6vw,72px);line-height:1.02;margin:0 0 .4em;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(26px,3.6vw,44px);line-height:1.1;margin:0 0 .3em;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.05em;margin:0 0 .3em}
+p{margin:.4em 0}
+.deck{height:100%;display:flex;flex-direction:column}
+.stage{flex:1;position:relative;min-height:0}
+.slide{position:absolute;inset:0;padding:clamp(20px,4vw,56px) clamp(16px,6vw,88px);overflow-y:auto;display:none}
+.slide.on{display:block}
+.wrap{max-width:980px;margin:0 auto}
+.lead{color:var(--muted);font-size:1.1em;max-width:62ch}
+.tag{display:inline-block;background:var(--tray);color:var(--tray-ink);padding:.15em .7em;border-radius:99px;font-size:.8em;font-weight:700;margin-bottom:.8em}
+.bar{display:flex;align-items:center;gap:12px;padding:10px clamp(14px,4vw,40px);border-top:1px solid var(--line);background:var(--surface)}
+.bar button{background:var(--tray);color:var(--tray-ink);border:0;border-radius:8px;padding:.5em 1.1em;font-weight:700;font-size:15px;cursor:pointer}
+.bar button:disabled{opacity:.35;cursor:default}
+.dots{flex:1;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line);cursor:pointer}
+.dots i.on{background:var(--tray);transform:scale(1.3)}
+button:focus-visible,.pick:focus-visible,textarea:focus-visible,input:focus-visible,.dots i:focus-visible,tr[tabindex]:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.hint{font:600 .8em "Bricolage Grotesque",sans-serif;color:var(--muted);margin:.8em 0 .4em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:10px 0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.btn{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.5em 1.1em;font-weight:700;cursor:pointer;font-size:.95em;margin:2px 0}
+.btn.on{border-color:var(--tray);background:var(--ok-bg)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35em .8em;font:600 .9em "Bricolage Grotesque",sans-serif}
+.flow b{color:var(--tray)}
+.pick{display:block;width:100%;text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;font:inherit;cursor:pointer}
+.pick .res{display:none;margin-top:8px;font-size:.92em}
+.pick.open .res{display:block}
+.pick.bad.open{border-color:var(--alert);background:var(--alert-bg)}
+.pick.good.open{border-color:var(--ok);background:var(--ok-bg)}
+.pick.meh.open{border-color:var(--gold);background:var(--gold-bg)}
+.pick .lbl{font:700 .85em "Bricolage Grotesque",sans-serif}
+.pick.bad .lbl{color:var(--alert)}.pick.good .lbl{color:var(--ok)}.pick.meh .lbl{color:var(--ink)}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.q>span{flex:1;min-width:200px}
+.q .opt{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.3em .8em;font-weight:700;font-size:.85em;cursor:pointer}
+.q .opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.q .opt.wrongpick{border-color:var(--alert);background:var(--alert-bg)}
+.q .fb{width:100%;font-size:.9em;display:none}
+.q.done .fb{display:block}
+.tbl-wrap{overflow-x:auto;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:.85em;background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:560px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:.85em;color:var(--muted)}
+th.lab,td.lab{background:var(--ok-bg);font-weight:600}
+tr.flag{cursor:pointer}
+tr.flag:hover{background:var(--bg)}
+tr.flag.marked td{background:var(--gold-bg)}
+tr.flag.marked td.lab{background:var(--gold-bg)}
+tr.flag.shown td{background:var(--alert-bg)}
+.note{display:none;font-size:.9em;margin:6px 0;padding:8px 12px;border-left:4px solid var(--alert);background:var(--surface);border-radius:0 8px 8px 0}
+.note.on{display:block}
+.bars{margin:14px 0}
+.bars .b{display:grid;grid-template-columns:150px 1fr 56px;gap:10px;align-items:center;margin:8px 0;font:600 .85em "Bricolage Grotesque",sans-serif}
+.bars .track{height:22px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.bars .fill{height:100%;background:var(--tray);transition:width .4s}
+.bars .fill.hot{background:var(--alert)}
+.meter{height:30px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--line);margin:12px 0}
+.meter div{display:flex;align-items:center;padding:0 12px;font:700 .8em "Bricolage Grotesque",sans-serif;white-space:nowrap;transition:width .4s}
+.m80{width:80%;background:var(--tray);color:var(--tray-ink)}
+.m20{width:20%;background:var(--surface);color:var(--muted);border-left:1px solid var(--line)}
+.m20.full{background:var(--gold);color:#16262B}
+label.ck{display:flex;gap:10px;align-items:flex-start;margin:8px 0;cursor:pointer}
+label.ck input{margin-top:.45em;width:18px;height:18px;accent-color:var(--tray);flex-shrink:0}
+textarea{width:100%;min-height:110px;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:.9em;resize:vertical}
+code{font:600 .85em "Bricolage Grotesque",sans-serif;background:var(--ok-bg);padding:.1em .4em;border-radius:4px}
+.score{font:600 .85em "Bricolage Grotesque",sans-serif;color:var(--muted)}
+@media (max-width:560px){.q>span{flex-basis:100%}.bars .b{grid-template-columns:96px 1fr 44px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.chip{display:inline;background:none;border:0;border-bottom:3px solid var(--gold);color:inherit;font:inherit;padding:0 1px;cursor:pointer}
+.chip.red{background:var(--ink);color:var(--ink);border-color:var(--ink);border-radius:3px;user-select:none}
+.chip.wrong{background:var(--alert-bg);border-color:var(--alert)}
+#pii{line-height:2}
+.meta{display:grid;grid-template-columns:minmax(120px,180px) 1fr;gap:8px 14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:10px 0}
+.meta label{font:700 .85em "Bricolage Grotesque",sans-serif;color:var(--muted)}
+.meta select{width:100%;font:inherit;font-size:.9em;padding:.4em .5em;border:2px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.meta select.right{border-color:var(--ok);background:var(--ok-bg)}
+.meta select.wrongpick{border-color:var(--alert);background:var(--alert-bg)}
+.meta .why{grid-column:1/-1;font-size:.85em;color:var(--muted);display:none;margin:-4px 0 4px}
+.meta.checked .why{display:block}
+.st{font:700 .95em "Bricolage Grotesque",sans-serif}
+.st.ok{color:var(--ok)}.st.no{color:var(--alert)}
+pre.res{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:600 .8em ui-monospace,Menlo,monospace;white-space:pre-wrap;margin:8px 0 0}
+@media (max-width:560px){.meta{grid-template-columns:1fr}}
+select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="deck">
+<div class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide on"><div class="wrap">
+<span class="tag">Case study · Health</span>
+<h1>The Vitals Upload</h1>
+<p class="lead">Your project team is building a no-code cloud workflow that summarizes blood-pressure trends for a community clinic’s wellness program. Two files sit on your desktop: <code>vitals_deid_2026Q3.csv</code> and <code>patient_charts_full.pdf</code>.</p>
+<p class="lead">Only one of them belongs in the cloud. Your job is to make sure the system, and not just the honor code, keeps it that way.</p>
+<p class="hint">Use the arrow keys or the buttons below. Most slides ask you to click something.</p>
+</div></section>
+
+<!-- 2 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Cloud building blocks</span>
+<h2>Engine or vault?</h2>
+<p class="lead">Your workflow uses both. Sort each piece into compute (runs work) or storage (keeps data).</p>
+<div id="cs"></div>
+<p class="score" id="csScore"></p>
+<div class="card"><b>Why it matters:</b> compute bills while it runs, so turn off idle workflows. Storage persists after compute stops, so whatever you upload stays there until someone deletes it.</div>
+</div></section>
+
+<!-- 3 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Infrastructure options</span>
+<h2>Rent the apartment or build the house?</h2>
+<p class="lead">Your team has four weeks, no IT staff, and no one who knows the command line. Pick a setup.</p>
+<button class="pick good"><span><b>A managed AI service</b>, configured in a web interface.</span><div class="res"><span class="lbl">Good fit.</span> The provider patches the servers and runs the model, so you can prototype in days. But renting doesn’t mean the landlord guards your belongings. You are still responsible for what you upload.</div></button>
+<button class="pick bad"><span><b>Self-hosted servers</b> the team sets up and patches.</span><div class="res"><span class="lbl">Poor fit here.</span> You would handle OS updates, network setup, and security on your own. That suits a hospital IT team with DevOps staff, not a four-week class project.</div></button>
+<button class="pick bad"><span><b>Skip the cloud.</b> Email the files to a teammate who has a good laptop.</span><div class="res"><span class="lbl">Worst option.</span> Email has no folder permissions, no audit trail, and no way to block the wrong file. It is the least controlled path of all.</div></button>
+</div></section>
+
+<!-- 4 -->
+<section class="slide"><div class="wrap">
+<span class="tag">APIs</span>
+<h2>The API is the waiter</h2>
+<p class="lead">Your no-code tool never enters the kitchen. It hands an order to the API, which checks the ticket and returns a result. Send each request.</p>
+<p><button class="btn on" data-mode="a">Request A</button> <button class="btn" data-mode="b">Request B</button></p>
+<div class="card" id="modeOut"></div>
+</div></section>
+
+<!-- 5 -->
+<section class="slide"><div class="wrap">
+<span class="tag">AWS AI services</span>
+<h2>Which service fits the clinic’s data?</h2>
+<p class="lead">The wellness program has more than a vitals table. The data type points to the tool. Pick a service for each input.</p>
+<div id="svc"></div>
+<p class="score" id="svcScore"></p>
+</div></section>
+
+<!-- 6 -->
+<section class="slide"><div class="wrap">
+<span class="tag">What makes a chart unsafe</span>
+<h2>Find the identifiers</h2>
+<p class="lead">This is the top of one page in <code>patient_charts_full.pdf</code> (fictional). Click every detail that identifies a person. Beware of decoys: some details are clinical data, not identifiers.</p>
+<div class="card" id="pii">Patient: <button class="chip" data-p="1">Maria Okafor</button> · DOB <button class="chip" data-p="1">03/14/1971</button> · <button class="chip" data-p="1">MRN 00482913</button><br>Address: <button class="chip" data-p="1">1412 Elm Street, Cedar Bend</button><br>Vitals: BP <button class="chip" data-p="0">142/91</button> · Pulse <button class="chip" data-p="0">78</button> · <button class="chip" data-p="0">Non-smoker</button></div>
+<p id="piiMsg" class="hint">Found 0 of 4 identifiers.</p>
+<div class="card"><h3>What the de-identified table looks like instead</h3><p>Identifiers removed, clinical values kept: <code>P-0193 · age 50–59 · BP 142/91 · pulse 78 · non-smoker</code>. The study ID can’t be traced back to the person outside the clinic.</p></div>
+</div></section>
+
+<!-- 7 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Permissions</span>
+<h2>Allowed or denied?</h2>
+<p class="lead">Your role is <b>student analyst, team 4</b>. Least privilege means you get only what the job needs. Make the call.</p>
+<div id="perm"></div>
+<p class="score" id="permScore"></p>
+</div></section>
+
+<!-- 8 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Policy vs. control</span>
+<h2>“No identifiable patient data.” Does that stop it?</h2>
+<p class="lead">A teammate wants a richer summary, so they drag <code>patient_charts_full.pdf</code> into the team folder. Compare two workspaces.</p>
+<p><button class="btn on" data-pc="p">Policy only</button> <button class="btn" data-pc="c">Policy plus a control</button></p>
+<div class="card" id="pcOut"></div>
+<div class="card"><b>Shared responsibility:</b> the provider secures the cloud itself, including data centers, hardware, and encryption. You secure what you put in it, including which files, who can see them, and how long they stay.</div>
+</div></section>
+
+<!-- 9 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Data stewardship</span>
+<h2>Give the safe file its ID card</h2>
+<p class="lead">Choose the right metadata for <code>vitals_deid_2026Q3.csv</code>. Then check your card.</p>
+<div class="meta" id="meta"></div>
+<p><button class="btn" id="checkMeta">Check my card</button> <span class="score" id="metaScore"></span></p>
+</div></section>
+
+<!-- 10 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Activity</span>
+<h2>Test one allowed and one denied action</h2>
+<p class="lead">Predict each result first, then run it and log what happened. A control only counts if you have seen it work.</p>
+<div class="row">
+<div class="card"><h3>Test A</h3><p>Upload <code>vitals_deid_2026Q3.csv</code> to <code>team-4/approved/</code></p><p><button class="btn" data-t="a">Run test</button></p><p id="ra" class="score"></p></div>
+<div class="card"><h3>Test B</h3><p>Upload <code>patient_charts_full.pdf</code> to <code>team-4/approved/</code></p><p><button class="btn" data-t="b">Run test</button></p><p id="rb" class="score"></p></div>
+</div>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Action</th><th>Expected</th><th>Actual</th><th>Evidence</th></tr></thead>
+<tbody><tr><td>Upload de-identified vitals table</td><td>Allowed</td><td id="ma">—</td><td id="ea">—</td></tr>
+<tr><td>Upload unredacted patient charts</td><td>Denied</td><td id="mb">—</td><td id="eb">—</td></tr></tbody></table></div>
+</div></section>
+
+<!-- 11 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Before you upload</span>
+<h2>The cloud runs the workflow. You guard the door.</h2>
+<p class="lead">Check each task you would complete before the workflow goes live.</p>
+<div class="meter"><div class="m80">Cloud: stores files, runs the model, enforces permissions</div><div class="m20" id="m20">Your part</div></div>
+<label class="ck"><input type="checkbox" class="h"> Confirm the file is the de-identified table, not the charts</label>
+<label class="ck"><input type="checkbox" class="h"> Attach metadata: source, owner, classification, permitted uses, retention</label>
+<label class="ck"><input type="checkbox" class="h"> Keep the API key out of chats, docs, and screenshots, and sign in with MFA</label>
+<label class="ck"><input type="checkbox" class="h"> Test one allowed and one denied action, and save the evidence</label>
+<p id="h20" class="hint">0 of 4 done.</p>
+</div></section>
+
+<!-- 12 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Your turn</span>
+<h2>Now try it with files from your major</h2>
+<p class="lead">Nothing is saved or sent. Your answers stay on this page.</p>
+<div class="row">
+<div><h3>A file you could upload</h3><textarea placeholder="e.g., An anonymized course-evaluation summary"></textarea></div>
+<div><h3>A file you never should</h3><textarea placeholder="e.g., Raw evaluations with student names and IDs"></textarea></div>
+<div><h3>Metadata for the safe one</h3><textarea placeholder="Source, owner, classification, permitted uses, retention"></textarea></div>
+</div>
+</div></section>
+
+<!-- 13 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Discuss</span>
+<h2>Three questions for the room</h2>
+<button class="pick good"><span>1. The project rules already said “no identifiable patient data.” Why test the upload at all?</span><div class="res">A policy is a promise. A control is what happens when someone breaks it. Only a test shows whether the 403 actually appears.</div></button>
+<button class="pick good"><span>2. The team used a managed service. Why isn’t patient privacy the provider’s job?</span><div class="res">Shared responsibility: the provider secures the infrastructure, and you decide what goes into it and who can reach it.</div></button>
+<button class="pick good"><span>3. Even if every control worked perfectly, what should stay a human decision?</span><div class="res">Whether this data should be used for this purpose at all, what the clinic and patients agreed to, and whether a summary could still single someone out.</div></button>
+</div></section>
+
+</div>
+<div class="bar"><button id="prev">Back</button><div class="dots" id="dots"></div><button id="next">Next</button></div>
+</div>
+<script>
+(function(){
+var slides=[].slice.call(document.querySelectorAll('.slide')),i=0,dots=document.getElementById('dots');
+slides.forEach(function(s,n){var d=document.createElement('i');d.tabIndex=0;d.setAttribute('aria-label','Slide '+(n+1));d.onclick=function(){go(n)};d.onkeydown=function(e){if(e.key==='Enter')go(n)};dots.appendChild(d)});
+function go(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,k){s.classList.toggle('on',k===i);dots.children[k].classList.toggle('on',k===i)});
+document.getElementById('prev').disabled=i===0;document.getElementById('next').disabled=i===slides.length-1;slides[i].scrollTop=0;try{history.replaceState(null,'','#s'+(i+1))}catch(e){}}
+document.getElementById('prev').onclick=function(){go(i-1)};document.getElementById('next').onclick=function(){go(i+1)};
+document.addEventListener('keydown',function(e){if(/TEXTAREA|INPUT|SELECT/.test(e.target.tagName))return;if(e.key==='ArrowRight')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+
+function quiz(el,scoreEl,items,opts,suffix){var got=0,done=0;
+items.forEach(function(it){var d=document.createElement('div');d.className='q';
+var h='<span>'+it[0]+'</span>';opts.forEach(function(o){h+='<button class="opt" data-a="'+o[0]+'">'+o[1]+'</button>'});h+='<div class="fb"></div>';d.innerHTML=h;
+d.querySelectorAll('.opt').forEach(function(b){b.onclick=function(){if(d.classList.contains('done'))return;d.classList.add('done');done++;var ok=b.dataset.a===it[1];if(ok)got++;
+b.classList.add(ok?'right':'wrongpick');if(!ok)d.querySelector('[data-a="'+it[1]+'"]').classList.add('right');
+var fb=d.querySelector('.fb');fb.style.color=ok?'var(--ok)':'var(--alert)';fb.textContent=(ok?'Right. ':'Not quite. ')+it[2];
+scoreEl.textContent='Score: '+got+' of '+done+(done===items.length?suffix:'')}});el.appendChild(d)})}
+
+quiz(document.getElementById('cs'),document.getElementById('csScore'),[
+["The team folder that holds the vitals CSV","s","Files that persist are storage."],
+["The AI model writing the weekly trend summary","c","Running a model is inference, which is compute."],
+["The Monday-morning workflow run","c","Each run uses processing time, and it bills while it runs."],
+["Last month’s saved summaries and charts","s","Saved outputs persist, so they are storage, and they need governing too."]
+],[["c","Compute"],["s","Storage"]],' · Every AI tool runs on both.');
+
+quiz(document.getElementById('svc'),document.getElementById('svcScore'),[
+["180 de-identified comments from the wellness survey","Comprehend","Free text goes to Comprehend for key phrases, sentiment, and themes. This is the service fit on the Health row."],
+["Scanned paper tally sheets from a blood-pressure screening day (readings only, no names)","Textract","Tables and fields in scanned documents go to Textract."],
+["Recording of the monthly wellness webinar","Transcribe","Speech to text goes to Transcribe."],
+["Photos from the health fair booth, to count visitors","Rekognition","Rekognition can detect and count people in images. But faces are identifiers, so get consent and keep these photos out of the shared folder."]
+],[["Textract","Textract"],["Comprehend","Comprehend"],["Rekognition","Rekognition"],["Transcribe","Transcribe"]],' · The data type points to the tool.');
+
+quiz(document.getElementById('perm'),document.getElementById('permScore'),[
+["Upload the de-identified vitals table to team-4/approved/","y","Approved, de-identified data in your team’s folder is within your role."],
+["Upload the unredacted patient charts to team-4/approved/","n","Charts carry names, birth dates, and record numbers. No analyst role needs them for a trend summary."],
+["Read the clinic’s published wellness guidelines in shared storage","y","Read access to approved public material is allowed."],
+["Paste the team’s API key into the group chat so everyone can test","n","An exposed key lets anyone use the account, and bill it. Keys stay in the tool’s settings."],
+["Change folder permissions so a classmate on another team can see your files","n","Changing permissions is an admin action, so your role can’t grant access. That is least privilege."],
+["Skip the MFA prompt because the deadline is tonight","n","MFA is a control by design. It can’t be waved off for convenience."]
+],[["y","Allowed"],["n","Denied"]],' · Least privilege at work.');
+
+var modes={a:'<h3>Request A: summarize the de-identified table</h3><div class="flow"><span>No-code tool</span><b>→</b><span>API checks team key and role</span><b>→</b><span>Cloud compute runs the model</span><b>→</b><span>Result</span></div><pre class="res"><span class="st ok">200 OK</span>\n{ "summary": "Avg systolic down 4 mmHg since July; 12% of readings above 140." }</pre><p>The key is valid, the file is in an approved folder, and the role allows it, so the waiter delivers the order.</p>',
+b:'<h3>Request B: summarize a file in admin/clinic-records/</h3><div class="flow"><span>No-code tool</span><b>→</b><span>API checks team key and role</span><b>→</b><span>Stopped at the door</span></div><pre class="res"><span class="st no">403 Forbidden</span>\n{ "error": "Access denied: role student-analyst cannot read admin/clinic-records/" }</pre><p>The key is real, but the role isn’t allowed in that folder. The kitchen never sees the request. That refusal is a <b>control</b> working.</p>'};
+var mo=document.getElementById('modeOut');mo.innerHTML=modes.a;
+
+var pc={p:'<h3>Policy only</h3><pre class="res"><span class="st ok">200 OK</span>  patient_charts_full.pdf uploaded to team-4/approved/</pre><p>The rule existed, but nothing enforced it. The charts now sit in cloud storage, where they can be indexed, summarized, and copied until someone notices. The policy said no, and the system said yes.</p>',
+c:'<h3>Policy plus a control</h3><pre class="res"><span class="st no">403 Forbidden</span>  Upload blocked: file contains identifiers (name, DOB, MRN). Only files tagged “de-identified” are accepted in team-4/approved/.</pre><p>The upload never lands. The rule is enforced by the system, so it holds even on a rushed night.</p>'};
+document.getElementById('pcOut').innerHTML=pc.p;
+
+var meta=[["Source",["Cedar Bend clinic wellness program export","A teammate’s laptop","Found online"],0,"Record where the data came from, not who last touched it."],
+["De-identified by",["The AI tool, automatically","The clinic’s health information office","Nobody yet"],1,"De-identification happens before upload, by the people accountable for it."],
+["Owner",["Whoever uploaded it","The cloud provider","Course instructor and clinic liaison"],2,"The owner is the person responsible for the data, not the provider or the uploader."],
+["Classification",["Public","De-identified, no direct identifiers","Restricted: full PHI"],1,"This is the label the source slide asks you to record for health data."],
+["Permitted uses",["Class trend analysis and charts","Anything the team finds useful","Posting on the class website"],0,"Name the uses. “Anything useful” is not a permission."],
+["Not permitted",["Nothing","Re-identifying patients or linking to other datasets","Making charts"],1,"Combining de-identified data with other sources can re-identify people."],
+["Retention",["Keep forever, just in case","Delete at end of term","Until the storage bill gets high"],1,"Data that is no longer needed is only a risk."]];
+var mEl=document.getElementById('meta');
+meta.forEach(function(m,k){var l=document.createElement('label');l.textContent=m[0];l.htmlFor='m'+k;var s=document.createElement('select');s.id='m'+k;
+s.innerHTML='<option value="">Choose…</option>'+m[1].map(function(o,j){return '<option value="'+j+'">'+o+'</option>'}).join('');
+var w=document.createElement('div');w.className='why';w.textContent=m[3];mEl.appendChild(l);mEl.appendChild(s);mEl.appendChild(w)});
+document.getElementById('checkMeta').onclick=function(){var got=0;meta.forEach(function(m,k){var s=document.getElementById('m'+k);var ok=s.value!==''&&+s.value===m[2];if(ok)got++;s.classList.toggle('right',ok);s.classList.toggle('wrongpick',!ok)});
+mEl.classList.add('checked');document.getElementById('metaScore').textContent=got+' of '+meta.length+' fields correct.'+(got===meta.length?' This file is ready to upload.':'')};
+
+document.addEventListener('click',function(e){var t=e.target.closest('button')||e.target;
+if(t.dataset&&t.dataset.mode){document.querySelectorAll('[data-mode]').forEach(function(b){b.classList.toggle('on',b===t)});mo.innerHTML=modes[t.dataset.mode]}
+if(t.dataset&&t.dataset.pc){document.querySelectorAll('[data-pc]').forEach(function(b){b.classList.toggle('on',b===t)});document.getElementById('pcOut').innerHTML=pc[t.dataset.pc]}
+if(t.dataset&&t.dataset.t){var a=t.dataset.t==='a';
+document.getElementById(a?'ra':'rb').innerHTML=a?'<span class="st ok">200 OK</span> · uploaded, then reopened: 214 rows match':'<span class="st no">403 Forbidden</span> · blocked: file contains identifiers';
+document.getElementById(a?'ma':'mb').innerHTML=a?'<span class="st ok">Allowed</span>':'<span class="st no">Denied</span>';
+document.getElementById(a?'ea':'eb').textContent=a?'Screenshot: file preview, 214 rows':'Screenshot: 403 message';t.textContent='Run again'}
+if(t.classList&&t.classList.contains('chip')){if(t.dataset.p==='1'){t.classList.add('red')}else{t.classList.add('wrong');t.title='Clinical data, not an identifier'}
+var n=document.querySelectorAll('#pii .chip.red').length,w=document.querySelectorAll('#pii .chip.wrong').length;
+document.getElementById('piiMsg').textContent='Found '+n+' of 4 identifiers.'+(w?' Decoys clicked: '+w+' (clinical values are what the analysis needs).':'')+(n===4?' All four found. These are exactly what the de-identified table removes.':'')}
+var p=e.target.closest('.pick');if(p)p.classList.toggle('open')});
+
+document.querySelectorAll('.h').forEach(function(c){c.onchange=function(){var n=document.querySelectorAll('.h:checked').length;document.getElementById('h20').textContent=n+' of 4 done.'+(n===4?' The door is guarded.':'');var m=document.getElementById('m20');m.classList.toggle('full',n===4);m.textContent=n===4?'Done':'Your part'}});
+var h=parseInt((location.hash||'').replace('#s',''),10);go(h?h-1:0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Invisible Part-Time Student</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F6F5;--surface:#FFFFFF;--ink:#16262B;--muted:#55686D;--line:#CBD8D6;--tray:#1F6F5C;--tray-ink:#FFFFFF;--alert:#C8372D;--alert-bg:#FBE7E4;--ok:#1F6F5C;--ok-bg:#DDF0EA;--gold:#E3A72F;--gold-bg:#FBF0D9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}}
+:root[data-theme="dark"]{--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:400 clamp(16px,1.5vw,20px)/1.55 "Source Serif 4",Georgia,serif;overflow:hidden}
+h1,h2,h3,button,.tag,th{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif}
+h1{font-size:clamp(34px,6vw,72px);line-height:1.02;margin:0 0 .4em;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(26px,3.6vw,44px);line-height:1.1;margin:0 0 .3em;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.05em;margin:0 0 .3em}
+p{margin:.4em 0}
+.deck{height:100%;display:flex;flex-direction:column}
+.stage{flex:1;position:relative;min-height:0}
+.slide{position:absolute;inset:0;padding:clamp(20px,4vw,56px) clamp(16px,6vw,88px);overflow-y:auto;display:none}
+.slide.on{display:block}
+.wrap{max-width:980px;margin:0 auto}
+.lead{color:var(--muted);font-size:1.1em;max-width:62ch}
+.tag{display:inline-block;background:var(--tray);color:var(--tray-ink);padding:.15em .7em;border-radius:99px;font-size:.8em;font-weight:700;margin-bottom:.8em}
+.bar{display:flex;align-items:center;gap:12px;padding:10px clamp(14px,4vw,40px);border-top:1px solid var(--line);background:var(--surface)}
+.bar button{background:var(--tray);color:var(--tray-ink);border:0;border-radius:8px;padding:.5em 1.1em;font-weight:700;font-size:15px;cursor:pointer}
+.bar button:disabled{opacity:.35;cursor:default}
+.dots{flex:1;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line);cursor:pointer}
+.dots i.on{background:var(--tray);transform:scale(1.3)}
+button:focus-visible,.pick:focus-visible,textarea:focus-visible,input:focus-visible,.dots i:focus-visible,tr[tabindex]:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.hint{font:600 .8em "Bricolage Grotesque",sans-serif;color:var(--muted);margin:.8em 0 .4em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:10px 0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.btn{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.5em 1.1em;font-weight:700;cursor:pointer;font-size:.95em;margin:2px 0}
+.btn.on{border-color:var(--tray);background:var(--ok-bg)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35em .8em;font:600 .9em "Bricolage Grotesque",sans-serif}
+.flow b{color:var(--tray)}
+.pick{display:block;width:100%;text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;font:inherit;cursor:pointer}
+.pick .res{display:none;margin-top:8px;font-size:.92em}
+.pick.open .res{display:block}
+.pick.bad.open{border-color:var(--alert);background:var(--alert-bg)}
+.pick.good.open{border-color:var(--ok);background:var(--ok-bg)}
+.pick.meh.open{border-color:var(--gold);background:var(--gold-bg)}
+.pick .lbl{font:700 .85em "Bricolage Grotesque",sans-serif}
+.pick.bad .lbl{color:var(--alert)}.pick.good .lbl{color:var(--ok)}.pick.meh .lbl{color:var(--ink)}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.q>span{flex:1;min-width:200px}
+.q .opt{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.3em .8em;font-weight:700;font-size:.85em;cursor:pointer}
+.q .opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.q .opt.wrongpick{border-color:var(--alert);background:var(--alert-bg)}
+.q .fb{width:100%;font-size:.9em;display:none}
+.q.done .fb{display:block}
+.tbl-wrap{overflow-x:auto;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:.85em;background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:560px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:.85em;color:var(--muted)}
+th.lab,td.lab{background:var(--ok-bg);font-weight:600}
+tr.flag{cursor:pointer}
+tr.flag:hover{background:var(--bg)}
+tr.flag.marked td{background:var(--gold-bg)}
+tr.flag.marked td.lab{background:var(--gold-bg)}
+tr.flag.shown td{background:var(--alert-bg)}
+.note{display:none;font-size:.9em;margin:6px 0;padding:8px 12px;border-left:4px solid var(--alert);background:var(--surface);border-radius:0 8px 8px 0}
+.note.on{display:block}
+.bars{margin:14px 0}
+.bars .b{display:grid;grid-template-columns:150px 1fr 56px;gap:10px;align-items:center;margin:8px 0;font:600 .85em "Bricolage Grotesque",sans-serif}
+.bars .track{height:22px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.bars .fill{height:100%;background:var(--tray);transition:width .4s}
+.bars .fill.hot{background:var(--alert)}
+.meter{height:30px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--line);margin:12px 0}
+.meter div{display:flex;align-items:center;padding:0 12px;font:700 .8em "Bricolage Grotesque",sans-serif;white-space:nowrap;transition:width .4s}
+.m80{width:80%;background:var(--tray);color:var(--tray-ink)}
+.m20{width:20%;background:var(--surface);color:var(--muted);border-left:1px solid var(--line)}
+.m20.full{background:var(--gold);color:#16262B}
+label.ck{display:flex;gap:10px;align-items:flex-start;margin:8px 0;cursor:pointer}
+label.ck input{margin-top:.45em;width:18px;height:18px;accent-color:var(--tray);flex-shrink:0}
+textarea{width:100%;min-height:110px;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:.9em;resize:vertical}
+code{font:600 .85em "Bricolage Grotesque",sans-serif;background:var(--ok-bg);padding:.1em .4em;border-radius:4px}
+.score{font:600 .85em "Bricolage Grotesque",sans-serif;color:var(--muted)}
+@media (max-width:560px){.q>span{flex-basis:100%}.bars .b{grid-template-columns:96px 1fr 44px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.flyer{width:100%;max-width:340px;display:block;border-radius:10px}
+.hs{cursor:pointer}
+.hs rect.ring{fill:transparent;stroke:transparent;stroke-width:2.5}
+.hs.mk rect.ring{stroke:#c98a12;stroke-dasharray:5 3}
+.hs.bad rect.ring{stroke:#b93535;stroke-dasharray:none}
+.hs.ok rect.ring{stroke:#2e7d4f;stroke-dasharray:none}
+.hs:focus{outline:none}.hs:focus-visible rect.ring{stroke:#4682d5}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;align-items:start}
+.src{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--tray);border-radius:0 10px 10px 0;padding:10px 14px;margin:8px 0;font-size:.92em}
+.src .m{display:block;font:600 .75em "Bricolage Grotesque",sans-serif;color:var(--muted);margin-bottom:4px}
+.letter{background:var(--gold-bg);border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-style:italic;line-height:1.6}
+.letter .pg{display:block;font:600 .72em "Bricolage Grotesque",sans-serif;font-style:normal;color:var(--muted);margin:8px 0 2px}
+.mono{font:500 .8em ui-monospace,Menlo,monospace;color:var(--muted);line-height:1.6}
+.nt{margin:6px 0;font-size:.88em}.nt.bad{color:var(--alert)}.nt.ok{color:var(--ok)}
+.btn{margin:2px 0}
+</style>
+</head>
+<body>
+<div class="deck">
+<div class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide on"><div class="wrap">
+<span class="tag">Case study · Social sciences and public service</span>
+<h1>The Invisible Part-Time Student</h1>
+<p class="lead" style="font-size:1.35em;color:var(--ink)">“The DHA answers every question correctly — for full-time students.”</p>
+<p class="lead">But what about everyone else?</p>
+<div class="row" style="max-width:520px;margin-top:18px">
+<div class="card" style="text-align:center"><div style="font-size:40px">☺</div><b>Full-time</b><p class="hint" style="margin:4px 0 0">Well served</p></div>
+<div class="card" style="text-align:center;opacity:.45"><div style="font-size:40px">☺</div><b>Part-time</b><p class="hint" style="margin:4px 0 0">Same system, different outcome</p></div>
+</div>
+<p class="hint">What does it mean for a system to be correct but unfair? Use the arrow keys or the buttons below.</p>
+</div></section>
+
+<!-- 2 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Scenario</span>
+<h2>A real question, a real problem</h2>
+<div class="src" style="border-left-color:var(--alert)"><span class="m">The situation · what you see</span>A part-time evening student asks the Department Help Assistant (DHA): “When is the last day to drop a course?” The DHA returns the full-time day-program deadline: technically in the handbook, accurate for one population, wrong for this student.</div>
+<div class="src" style="border-left-color:var(--gold)"><span class="m">Why it happened · what you have to investigate</span>The handbook has both deadlines, but the evening-program section uses different heading styles. Retrieval ranks the day-program section higher because it contains more text and is referenced more often.</div>
+<div class="src" style="border-left-color:#4682d5"><span class="m">Who is affected · who bears the cost</span>Part-time, evening, and accelerated-program students: populations already underserved by institutional systems, and disproportionately working adults, caregivers, and first-generation students.</div>
+</div></section>
+
+<!-- 3 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 1 · Test it</span>
+<h2>Paired prompts: same question, different framing</h2>
+<div class="src"><span class="m">Fictional handbook · two deadline sections</span><b>HB-4.2 Day program (16-week courses):</b> Last day to drop with a W: Friday, November 6, 2026.<br><b>HB-4.5 Evening and accelerated (8-week Session A):</b> Last day to drop with a W: Friday, October 23, 2026.</div>
+<p class="lead">It’s October 20. Run three versions of the question.</p>
+<p><button class="btn" data-tg="pp" data-k="a">Plain question</button> <button class="btn" data-tg="pp" data-k="b">Part-time framing</button> <button class="btn" data-tg="pp" data-k="c">Exact program wording</button></p>
+<div class="card" id="tg-pp"></div>
+</div></section>
+
+<!-- 4 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Where the bias lives</span>
+<h2>Four places, four kinds of bias</h2>
+<p class="lead">Match each stage of the pipeline to the bias that enters there.</p>
+<div id="stages"></div>
+<p class="score" id="stageScore"></p>
+<div class="card" style="border-color:var(--gold)"><b>⚠ The model didn’t “decide” to ignore part-time students. The pipeline never asked.</b></div>
+</div></section>
+
+<!-- 5 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Why this is a gray box problem</span>
+<h2>Partial visibility demands an audit</h2>
+<div class="row">
+<div class="card" style="border-left:4px solid var(--ok)"><h3>What the student can see</h3><p>The question they asked · the answer they received · possibly a source citation</p></div>
+<div class="card" style="border-left:4px solid var(--alert)"><h3>What the student can’t see</h3><p>The retrieval ranking · that a different section exists · the system prompt · the knowledge base structure</p></div>
+<div class="card" style="border-left:4px solid var(--gold)"><h3>What even the builder may not see</h3><p>Whether retrieval consistently favors the longer section · whether the evening section is ever retrieved for any query</p></div>
+</div>
+<div class="card" style="background:var(--ink);color:var(--bg)"><b>Gray box insight:</b> you know enough to test, but not enough to predict. Partial visibility is what makes an audit essential.</div>
+</div></section>
+
+<!-- 6 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 2 · Classify it</span>
+<h2>Name the risk</h2>
+<p class="lead">Use the six risk categories from the lecture.</p>
+<div id="classify"></div>
+<p class="score" id="classScore"></p>
+</div></section>
+
+<!-- 7 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 3 · Guardrail check</span>
+<h2>Would a guardrail catch this?</h2>
+<p class="lead">You turn on an Amazon Bedrock guardrail. Which of these statements are true?</p>
+<button class="pick bad"><span>“A content filter will block it.”</span><div class="res"><span class="lbl">No.</span> Nothing in the answer is hateful, violent, or toxic. Content filters look for harmful content, not missing context.</div></button>
+<button class="pick bad"><span>“A denied topic for ‘deadlines’ would fix it.”</span><div class="res"><span class="lbl">No.</span> That blocks every deadline question, for everyone. Over-blocking harms access and fairness.</div></button>
+<button class="pick good"><span>“A contextual grounding check probably won’t flag it.”</span><div class="res"><span class="lbl">True.</span> The answer is grounded in a real handbook passage. It’s the wrong passage for this student, which grounding checks can’t know.</div></button>
+<button class="pick good"><span>“This needs a non-guardrail fix.”</span><div class="res"><span class="lbl">True.</span> It’s incomplete retrieval, not harmful content. The fix is in the knowledge base, the prompt, and testing.</div></button>
+<div class="card" style="border-color:var(--gold);background:var(--gold-bg)"><b>⚠ A content filter will NOT catch this.</b> It isn’t harmful content; it’s incomplete retrieval.</div>
+</div></section>
+
+<!-- 8 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 4 · What’s left?</span>
+<h2>What would actually fix it?</h2>
+<p class="lead">Choose the responses you would recommend.</p>
+<button class="pick meh"><span>“Add more text to the evening-program section so it ranks higher.”</span><div class="res"><span class="lbl">The problem moves.</span> Now both sections may be retrieved and the model picks one arbitrarily. Retrieval still doesn’t ask which student is asking.</div></button>
+<button class="pick good"><span>“Tag every handbook section by student population, and match tags to the question.”</span><div class="res"><span class="lbl">Strong.</span> It fixes the knowledge base structure, not just the ranking. Owner: whoever maintains the handbook collection.</div></button>
+<button class="pick good"><span>“Have the assistant ask, ‘Are you in the day program or an evening/accelerated program?’ before answering deadline questions.”</span><div class="res"><span class="lbl">Strong.</span> A clarifying question closes the gap the designer assumed away. Owner: the builder, approved by student services.</div></button>
+<button class="pick meh"><span>“Add a disclaimer to every deadline answer: ‘Deadlines differ by program.’”</span><div class="res"><span class="lbl">Helps, but not enough.</span> It signals uncertainty but still gives the wrong date. Use it alongside a real fix.</div></button>
+<button class="pick bad"><span>“Fine-tune the model on more part-time student data.”</span><div class="res"><span class="lbl">Wrong layer.</span> The facts are already in the handbook. The failure is in retrieval and design, not the model’s weights.</div></button>
+</div></section>
+
+<!-- 9 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Detect it in production</span>
+<h2>What if no part-time student complains?</h2>
+<p class="lead">Silence doesn’t mean the system works. Check each practice you would put in place.</p>
+<div class="meter"><div class="m80">The DHA: correct for the majority</div><div class="m20" id="m20">Human checks</div></div>
+<label class="ck"><input type="checkbox" class="h"> Run paired prompts for every student population on a schedule, not just once</label>
+<label class="ck"><input type="checkbox" class="h"> Measure accuracy separately for each group (subgroup analysis), not just overall</label>
+<label class="ck"><input type="checkbox" class="h"> Name an owner and a review cadence for the knowledge base</label>
+<label class="ck"><input type="checkbox" class="h"> Record the finding as a tested [T] limitation in the Model Card (Week 13)</label>
+<p id="h20" class="hint">0 of 4 done.</p>
+</div></section>
+
+<!-- 10 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Mapped to your deliverables</span>
+<h2>From this case to Lab-12</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Task</th><th>What to do</th><th>Deliverable</th></tr></thead>
+<tbody>
+<tr><td><b>1. Test it</b></td><td>Write 3 paired prompts (full-time vs. part-time framing) and run them</td><td>Lab-12 D1: Test set</td></tr>
+<tr><td><b>2. Classify it</b></td><td>Which NIST bias type? Which of the six risk categories?</td><td>Lab-12 D2: Findings table</td></tr>
+<tr><td><b>3. Guardrail check</b></td><td>Would a content filter catch this? Why or why not?</td><td>Lab-12 D3: Before/after</td></tr>
+<tr><td><b>4. What’s left?</b></td><td>What non-guardrail response would fix this? Who carries it out?</td><td>Lab-12 D4: Unresolved risk · HW-12 §5</td></tr>
+</tbody></table></div>
+</div></section>
+
+<!-- 11 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Key takeaway</span>
+<h2>Accurate on average, wrong for a subgroup</h2>
+<div class="card" style="background:var(--ink);color:var(--bg);font-size:1.05em">A system can be accurate on average and systematically wrong for a subgroup. Bias testing requires testing <b>with</b> the subgroup’s context, not just the system’s most common use case.</div>
+<div class="row">
+<div class="card" style="border-left:4px solid #4682d5"><h3>Connection to Lab-12</h3><p>You’ll run your own paired prompts. Look for <b>your</b> invisible student: the user your test set doesn’t yet include.</p></div>
+<div class="card" style="border-left:4px solid var(--gold)"><h3>Connection to Week 13</h3><p>You’ll document this in your Model Card limitations section. A limitation you tested [T] is worth more than one you assumed [U].</p></div>
+</div>
+<p class="hint">Standards: NIST SP 1270 (systemic and statistical bias) · NIST AI RMF Map · OWASP LLM09 (misinformation)</p>
+</div></section>
+
+<!-- 12 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Your turn</span>
+<h2>Who is your invisible user?</h2>
+<p class="lead">Nothing is saved or sent. Your answers stay on this page.</p>
+<div class="row">
+<div><h3>Your system</h3><textarea placeholder="e.g., Your Project 1 knowledge base or Project 2 agent"></textarea></div>
+<div><h3>Your invisible user</h3><textarea placeholder="Who might the sources, prompt, or tests leave out?"></textarea></div>
+<div><h3>One paired prompt</h3><textarea placeholder="Prompt A (common framing) and Prompt B (their framing)"></textarea></div>
+</div>
+</div></section>
+
+<!-- 13 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Discuss</span>
+<h2>Four questions for the room</h2>
+<button class="pick good"><span>1. “The answer is factually correct. Is it safe to deploy? For whom?”</span><div class="res">Safe for full-time students, not for part-time students. Risk is measured by the impact on affected groups, not average accuracy. Is “safe for most people” good enough?</div></button>
+<button class="pick good"><span>2. “If you add the evening-program section with more text, does the problem go away, or does it move?”</span><div class="res">It moves. Retrieval still doesn’t ask which student is asking, so now the model may pick either section arbitrarily. Bias is structural, not just a data gap.</div></button>
+<button class="pick good"><span>3. “Who should be responsible for testing whether the DHA serves part-time students accurately?”</span><div class="res">There’s no single right answer: the builder, the department, or the institution. Defend a position. Who is responsible, who is accountable, who is consulted, and who is informed?</div></button>
+<button class="pick good"><span>4. “How would you detect this in production if no part-time student complains?”</span><div class="res">Scheduled paired-prompt testing, subgroup analysis of logs, and a mandatory review cadence. Relying on complaints means you never hear from the people who gave up.</div></button>
+</div></section>
+
+</div>
+<div class="bar"><button id="prev">Back</button><div class="dots" id="dots"></div><button id="next">Next</button></div>
+</div>
+<script>
+window.CASE={
+quizzes:[
+{el:'stages',score:'stageScore',opts:[['sys','Systemic'],['stat','Statistical'],['hum','Human'],['pres','Presentation']],suffix:' · Bias enters in four places, not one.',items:[
+["<b>Training data:</b> model weights reflect patterns that historically center full-time students","sys","Systemic bias: institutional and historical patterns embedded in data."],
+["<b>Knowledge base:</b> longer sections rank higher, so day-program content dominates retrieval","stat","Statistical bias: data volume and frequency skew retrieval. The algorithm works as designed; the distribution is the problem."],
+["<b>System prompt:</b> no instruction to check student type, because the designer assumed one population","hum","Human bias: a design omission. Not deciding is still a design choice."],
+["<b>Output:</b> a correct-sounding answer with no qualifier or disclaimer","pres","Presentation bias: the output doesn’t signal its limits or who it applies to."]
+]},
+{el:'classify',score:'classScore',opts:[['fair','Fairness'],['acc','Accuracy'],['acs','Accessibility'],['safe','Safety'],['copy','Copyright']],suffix:' · Name the primary category first; it decides who acts.',items:[
+["Primary category: one group gets wrong answers more often than another","fair","Fairness: it fails equal error rates across student groups."],
+["Secondary category: the date given is wrong for the person asking","acc","Accuracy: the passage is real, but it’s the wrong passage for this student."]
+]}],
+toggles:{
+pp:{a:'<p class="mono">“When is the last day to drop a course?”</p><p class="mono">→ “The last day to drop with a W is Friday, November 6, 2026. [HB-4.2]”</p><p class="nt bad">Correct for the day program. A part-time evening student waits, and misses October 23.</p>',
+b:'<p class="mono">“I’m a part-time student. When is the last day to drop a course?”</p><p class="mono">→ “The last day to drop with a W is Friday, November 6, 2026. [HB-4.2]”</p><p class="nt bad">Same answer. “Part-time” didn’t change what retrieval ranked first.</p>',
+c:'<p class="mono">“When is the last day to drop an 8-week evening Session A course?”</p><p class="mono">→ “Friday, October 23, 2026. [HB-4.5]”</p><p class="nt ok">Right answer, but only because the student already knew the handbook’s exact wording. Most students won’t.</p><p class="hint">Illustrative outputs. In Lab-12, run real paired prompts and record what actually happens.</p>'}},
+doneMsg:'Now you’ll hear from the students who never complain.'
+};
+
+</script>
+<script>
+(function(){
+var slides=[].slice.call(document.querySelectorAll('.slide')),i=0,dots=document.getElementById('dots');
+slides.forEach(function(s,n){var d=document.createElement('i');d.tabIndex=0;d.setAttribute('aria-label','Slide '+(n+1));d.onclick=function(){go(n)};d.onkeydown=function(e){if(e.key==='Enter')go(n)};dots.appendChild(d)});
+function go(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,k){s.classList.toggle('on',k===i);dots.children[k].classList.toggle('on',k===i)});
+document.getElementById('prev').disabled=i===0;document.getElementById('next').disabled=i===slides.length-1;slides[i].scrollTop=0;try{history.replaceState(null,'','#s'+(i+1))}catch(e){}}
+window.goSlide=go;
+document.getElementById('prev').onclick=function(){go(i-1)};document.getElementById('next').onclick=function(){go(i+1)};
+document.addEventListener('keydown',function(e){if(/TEXTAREA|INPUT|SELECT/.test(e.target.tagName))return;if(e.target.closest&&e.target.closest('.flyer'))return;if(e.key==='ArrowRight')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+var C=window.CASE||{};
+/* quizzes */
+(C.quizzes||[]).forEach(function(q){var el=document.getElementById(q.el),sc=document.getElementById(q.score),got=0,done=0;
+q.items.forEach(function(it){var d=document.createElement('div');d.className='q';var h='<span>'+it[0]+'</span>';q.opts.forEach(function(o){h+='<button class="opt" data-a="'+o[0]+'">'+o[1]+'</button>'});h+='<div class="fb"></div>';d.innerHTML=h;
+d.querySelectorAll('.opt').forEach(function(b){b.onclick=function(){if(d.classList.contains('done'))return;d.classList.add('done');done++;var ok=b.dataset.a===it[1];if(ok)got++;
+b.classList.add(ok?'right':'wrongpick');if(!ok)d.querySelector('[data-a="'+it[1]+'"]').classList.add('right');var fb=d.querySelector('.fb');fb.style.color=ok?'var(--ok)':'var(--alert)';fb.textContent=(ok?'Right. ':'Not quite. ')+it[2];
+sc.textContent='Score: '+got+' of '+done+(done===q.items.length?(q.suffix||''):'')}});el.appendChild(d)})});
+/* toggles */
+Object.keys(C.toggles||{}).forEach(function(g){var out=document.getElementById('tg-'+g),m=C.toggles[g];var btns=document.querySelectorAll('[data-tg="'+g+'"]');
+function set(k){btns.forEach(function(b){b.classList.toggle('on',b.dataset.k===k)});out.innerHTML=m[k]}
+btns.forEach(function(b){b.onclick=function(){set(b.dataset.k)}});set(btns[0].dataset.k)});
+/* picks */
+document.querySelectorAll('.pick').forEach(function(p){p.onclick=function(){p.classList.toggle('open')}});
+/* flyer */
+if(C.flyer){var F=C.flyer,hs=[].slice.call(document.querySelectorAll('.flyer .hs')),rv=false,fn=document.getElementById('flagN');
+function cnt(){fn.textContent='Flagged '+hs.filter(function(h){return h.classList.contains('mk')}).length+'.'}
+hs.forEach(function(h){function t(){if(rv)return;h.classList.toggle('mk');cnt()}h.addEventListener('click',t);h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();t()}})});
+document.getElementById('revF').onclick=function(){rv=!rv;var hit=0,miss=0,out=[];
+hs.forEach(function(h){var k=h.dataset.k,m=h.classList.contains('mk');h.classList.toggle('bad',rv&&!!F.bad[k]);h.classList.toggle('ok',rv&&!!F.ok[k]&&m);if(F.bad[k]&&m)hit++;if(F.ok[k]&&m)miss++;
+if(rv&&F.bad[k])out.push('<p class="nt bad">'+F.bad[k]+'</p>');if(rv&&F.ok[k]&&m)out.push('<p class="nt ok">'+F.ok[k]+'</p>')});
+document.getElementById('fNotes').innerHTML=out.join('');fn.textContent=rv?'You caught '+hit+' of '+Object.keys(F.bad).length+' errors'+(miss?' and flagged '+miss+' decoy'+(miss>1?'s':'')+'.':'.'):'';if(!rv)cnt();this.textContent=rv?'Hide errors':'Reveal errors'}}
+/* flag table */
+if(document.getElementById('log')&&document.getElementById('reveal')){var rv2=false,rows=[].slice.call(document.querySelectorAll('#log tr.flag')),nb=rows.filter(function(r){return r.dataset.bad==='1'}).length;
+function tr(r){if(rv2)return;r.classList.toggle('marked');document.getElementById('flagScore').textContent='Flagged '+document.querySelectorAll('#log tr.marked').length+' rows.'}
+rows.forEach(function(r){r.onclick=function(){tr(r)};r.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();tr(r)}}});
+document.getElementById('reveal').onclick=function(){rv2=!rv2;var hit=0,miss=0;rows.forEach(function(r){var b=r.dataset.bad==='1',m=r.classList.contains('marked');if(b&&m)hit++;if(!b&&m)miss++;r.classList.toggle('shown',rv2&&b)});
+document.querySelectorAll('#notes .note').forEach(function(n){var r=rows[+n.dataset.n-1];n.classList.toggle('on',rv2&&(r.dataset.bad==='1'||r.classList.contains('marked')))});
+this.textContent=rv2?'Hide check':'Check against P1';document.getElementById('flagScore').textContent=rv2?'You caught '+hit+' of '+nb+' wrong rows'+(miss?' and flagged '+miss+' correct row'+(miss>1?'s':'')+'.':'.'):'Flagged '+document.querySelectorAll('#log tr.marked').length+' rows.'}}
+/* meter */
+var hc=document.querySelectorAll('.h'),N=hc.length;
+hc.forEach(function(c){c.onchange=function(){var n=document.querySelectorAll('.h:checked').length;document.getElementById('h20').textContent=n+' of '+N+' done.'+(n===N?' '+(C.doneMsg||'Done.'):'');var m=document.getElementById('m20');m.classList.toggle('full',n===N);m.textContent=n===N?'Checks done':'Human checks'}});
+var hh=parseInt((location.hash||'').replace('#s',''),10);go(hh?hh-1:0);
+})();
+</script>
+</body>
+</html>

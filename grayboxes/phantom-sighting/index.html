@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Phantom Sighting</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F6F5;--surface:#FFFFFF;--ink:#16262B;--muted:#55686D;--line:#CBD8D6;--tray:#1F6F5C;--tray-ink:#FFFFFF;--alert:#C8372D;--alert-bg:#FBE7E4;--ok:#1F6F5C;--ok-bg:#DDF0EA;--gold:#E3A72F;--gold-bg:#FBF0D9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}}
+:root[data-theme="dark"]{--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:400 clamp(16px,1.5vw,20px)/1.55 "Source Serif 4",Georgia,serif;overflow:hidden}
+h1,h2,h3,button,.tag,th{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif}
+h1{font-size:clamp(34px,6vw,72px);line-height:1.02;margin:0 0 .4em;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(26px,3.6vw,44px);line-height:1.1;margin:0 0 .3em;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.05em;margin:0 0 .3em}
+p{margin:.4em 0}
+.deck{height:100%;display:flex;flex-direction:column}
+.stage{flex:1;position:relative;min-height:0}
+.slide{position:absolute;inset:0;padding:clamp(20px,4vw,56px) clamp(16px,6vw,88px);overflow-y:auto;display:none}
+.slide.on{display:block}
+.wrap{max-width:980px;margin:0 auto}
+.lead{color:var(--muted);font-size:1.1em;max-width:62ch}
+.tag{display:inline-block;background:var(--tray);color:var(--tray-ink);padding:.15em .7em;border-radius:99px;font-size:.8em;font-weight:700;margin-bottom:.8em}
+.bar{display:flex;align-items:center;gap:12px;padding:10px clamp(14px,4vw,40px);border-top:1px solid var(--line);background:var(--surface)}
+.bar button{background:var(--tray);color:var(--tray-ink);border:0;border-radius:8px;padding:.5em 1.1em;font-weight:700;font-size:15px;cursor:pointer}
+.bar button:disabled{opacity:.35;cursor:default}
+.dots{flex:1;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line);cursor:pointer}
+.dots i.on{background:var(--tray);transform:scale(1.3)}
+button:focus-visible,.pick:focus-visible,textarea:focus-visible,input:focus-visible,.dots i:focus-visible,tr[tabindex]:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.hint{font:600 .8em "Bricolage Grotesque",sans-serif;color:var(--muted);margin:.8em 0 .4em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:10px 0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.btn{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.5em 1.1em;font-weight:700;cursor:pointer;font-size:.95em;margin:2px 0}
+.btn.on{border-color:var(--tray);background:var(--ok-bg)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35em .8em;font:600 .9em "Bricolage Grotesque",sans-serif}
+.flow b{color:var(--tray)}
+.pick{display:block;width:100%;text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;font:inherit;cursor:pointer}
+.pick .res{display:none;margin-top:8px;font-size:.92em}
+.pick.open .res{display:block}
+.pick.bad.open{border-color:var(--alert);background:var(--alert-bg)}
+.pick.good.open{border-color:var(--ok);background:var(--ok-bg)}
+.pick.meh.open{border-color:var(--gold);background:var(--gold-bg)}
+.pick .lbl{font:700 .85em "Bricolage Grotesque",sans-serif}
+.pick.bad .lbl{color:var(--alert)}.pick.good .lbl{color:var(--ok)}.pick.meh .lbl{color:var(--ink)}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.q>span{flex:1;min-width:200px}
+.q .opt{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.3em .8em;font-weight:700;font-size:.85em;cursor:pointer}
+.q .opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.q .opt.wrongpick{border-color:var(--alert);background:var(--alert-bg)}
+.q .fb{width:100%;font-size:.9em;display:none}
+.q.done .fb{display:block}
+.tbl-wrap{overflow-x:auto;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:.85em;background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:560px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:.85em;color:var(--muted)}
+th.lab,td.lab{background:var(--ok-bg);font-weight:600}
+tr.flag{cursor:pointer}
+tr.flag:hover{background:var(--bg)}
+tr.flag.marked td{background:var(--gold-bg)}
+tr.flag.marked td.lab{background:var(--gold-bg)}
+tr.flag.shown td{background:var(--alert-bg)}
+.note{display:none;font-size:.9em;margin:6px 0;padding:8px 12px;border-left:4px solid var(--alert);background:var(--surface);border-radius:0 8px 8px 0}
+.note.on{display:block}
+.bars{margin:14px 0}
+.bars .b{display:grid;grid-template-columns:150px 1fr 56px;gap:10px;align-items:center;margin:8px 0;font:600 .85em "Bricolage Grotesque",sans-serif}
+.bars .track{height:22px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.bars .fill{height:100%;background:var(--tray);transition:width .4s}
+.bars .fill.hot{background:var(--alert)}
+.meter{height:30px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--line);margin:12px 0}
+.meter div{display:flex;align-items:center;padding:0 12px;font:700 .8em "Bricolage Grotesque",sans-serif;white-space:nowrap;transition:width .4s}
+.m80{width:80%;background:var(--tray);color:var(--tray-ink)}
+.m20{width:20%;background:var(--surface);color:var(--muted);border-left:1px solid var(--line)}
+.m20.full{background:var(--gold);color:#16262B}
+label.ck{display:flex;gap:10px;align-items:flex-start;margin:8px 0;cursor:pointer}
+label.ck input{margin-top:.45em;width:18px;height:18px;accent-color:var(--tray);flex-shrink:0}
+textarea{width:100%;min-height:110px;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:.9em;resize:vertical}
+code{font:600 .85em "Bricolage Grotesque",sans-serif;background:var(--ok-bg);padding:.1em .4em;border-radius:4px}
+.score{font:600 .85em "Bricolage Grotesque",sans-serif;color:var(--muted)}
+@media (max-width:560px){.q>span{flex-basis:100%}.bars .b{grid-template-columns:96px 1fr 44px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.chip{display:inline;background:none;border:0;border-bottom:3px solid var(--gold);color:inherit;font:inherit;padding:0 1px;cursor:pointer}
+.chip.red{background:var(--ink);color:var(--ink);border-color:var(--ink);border-radius:3px;user-select:none}
+.chip.wrong{background:var(--alert-bg);border-color:var(--alert)}
+#pii{line-height:2}
+.meta{display:grid;grid-template-columns:minmax(120px,180px) 1fr;gap:8px 14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:10px 0}
+.meta label{font:700 .85em "Bricolage Grotesque",sans-serif;color:var(--muted)}
+.meta select{width:100%;font:inherit;font-size:.9em;padding:.4em .5em;border:2px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.meta select.right{border-color:var(--ok);background:var(--ok-bg)}
+.meta select.wrongpick{border-color:var(--alert);background:var(--alert-bg)}
+.meta .why{grid-column:1/-1;font-size:.85em;color:var(--muted);display:none;margin:-4px 0 4px}
+.meta.checked .why{display:block}
+.st{font:700 .95em "Bricolage Grotesque",sans-serif}
+.st.ok{color:var(--ok)}.st.no{color:var(--alert)}
+pre.res{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:600 .8em ui-monospace,Menlo,monospace;white-space:pre-wrap;margin:8px 0 0}
+@media (max-width:560px){.meta{grid-template-columns:1fr}}
+select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+#res td.m{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="deck">
+<div class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide on"><div class="wrap">
+<span class="tag">Case study · STEM</span>
+<h1>The Phantom Sighting</h1>
+<p class="lead">Your field ecology class has 12 trail cameras at the Cedar Bend preserve and 2,000 photos from the fall. An image model just flagged a <b>plains spotted skunk</b>, which would be the preserve’s first record of the species in 30 years.</p>
+<p class="lead">The preserve director wants to tell the state wildlife agency today. Before anyone does, your class has to decide how much to trust that “yes.”</p>
+<p class="hint">Use the arrow keys or the buttons below. Most slides ask you to click something.</p>
+</div></section>
+
+<!-- 2 -->
+<section class="slide"><div class="wrap">
+<span class="tag">The ML lifecycle</span>
+<h2>Which stage is this?</h2>
+<p class="lead">Your project moves through five stages. Match each step to its stage.</p>
+<div class="flow" style="margin-bottom:10px"><span>1 Define</span><b>→</b><span>2 Prepare</span><b>→</b><span>3 Train</span><b>→</b><span>4 Evaluate</span><b>→</b><span>5 Deploy and monitor</span><b>↺</b></div>
+<div id="life"></div>
+<p class="score" id="lifeScore"></p>
+</div></section>
+
+<!-- 3 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Train/test split · overfitting</span>
+<h2>Did it learn the skunk, or the camera?</h2>
+<p class="lead">Every training photo of a spotted skunk came from Camera 7 at night. Compare two models on the 80% they studied and the 20% they have never seen.</p>
+<p><button class="btn on" data-ov="train">Training set (80%)</button> <button class="btn" data-ov="test">Test set (20%)</button></p>
+<div class="bars">
+<div class="b"><span>Model 1: shortcut</span><div class="track"><div class="fill" id="barA"></div></div><span id="valA"></span></div>
+<div class="b"><span>Model 2: balanced</span><div class="track"><div class="fill" id="barB"></div></div><span id="valB"></span></div>
+</div>
+<p class="hint">Bars show accuracy. Longer is better.</p>
+<div class="card" id="ovOut"></div>
+</div></section>
+
+<!-- 4 -->
+<section class="slide"><div class="wrap">
+<span class="tag">The confusion matrix</span>
+<h2>Sort the model’s calls into four boxes</h2>
+<p class="lead">For each photo, compare what the model said with what the course biologist confirmed. Is it a true positive, false positive, false negative, or true negative?</p>
+<div id="cm"></div>
+<p class="score" id="cmScore"></p>
+</div></section>
+
+<!-- 5 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Activity</span>
+<h2>Interpret the results table</h2>
+<p class="lead">Three models scored the same 400 test photos. Only 20 photos actually show a spotted skunk.</p>
+<div class="tbl-wrap"><table id="res">
+<thead><tr><th>Model</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+<tbody>
+<tr><td><b>A</b> cautious</td><td>12</td><td>2</td><td>8</td><td>378</td><td class="m">?</td><td class="m">?</td><td class="m">?</td><td class="m">?</td></tr>
+<tr><td><b>B</b> eager</td><td>19</td><td>31</td><td>1</td><td>349</td><td class="m">?</td><td class="m">?</td><td class="m">?</td><td class="m">?</td></tr>
+<tr><td><b>C</b> always “no”</td><td>0</td><td>0</td><td>20</td><td>380</td><td class="m">?</td><td class="m">?</td><td class="m">?</td><td class="m">?</td></tr>
+</tbody></table></div>
+<p><button class="btn" id="calc">Calculate metrics</button></p>
+<p class="hint">Precision = TP / (TP + FP) · Recall = TP / (TP + FN) · F1 = 2·P·R / (P + R)</p>
+<div class="card"><p><b>A false sighting</b> means a public correction, a wasted state survey, and lost trust in the preserve. Which model should decide what gets announced?</p>
+<p><button class="btn" data-m="A">Model A</button> <button class="btn" data-m="B">Model B</button> <button class="btn" data-m="C">Model C</button></p><p id="mfb"></p></div>
+</div></section>
+
+<!-- 6 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Trade-offs</span>
+<h2>Same lab, opposite mistake</h2>
+<p class="lead">The building next door uses sensors to detect gas leaks in a chemistry lab. Switch between the two jobs. Which mistake hurts more?</p>
+<p><button class="btn on" data-mode="s">Announcing a sighting</button> <button class="btn" data-mode="g">Detecting a gas leak</button></p>
+<div class="card" id="modeOut"></div>
+</div></section>
+
+<!-- 7 -->
+<section class="slide"><div class="wrap">
+<span class="tag">From metrics to decision</span>
+<h2>Model A says “spotted skunk.” Now what?</h2>
+<p class="lead">The director wants a press release today. What do you recommend?</p>
+<button class="pick bad"><span>“Publish it. Model A has 97.5% accuracy.”</span><div class="res"><span class="lbl">Accuracy trap.</span> Model C also scores 95% while never finding a skunk. With 20 skunks in 400 photos, accuracy mostly measures how well the model rejects everything else.</div></button>
+<button class="pick bad"><span>“Switch to Model B first. It catches 19 of 20 skunks.”</span><div class="res"><span class="lbl">Wrong metric for this job.</span> B’s recall is high, but 31 of its 50 “yes” calls are wrong. For an announcement, you need the yes to be right.</div></button>
+<button class="pick good"><span>“Have the biologist verify the photo, then revisit the camera site before announcing.”</span><div class="res"><span class="lbl">Strong move.</span> Even with 86% precision, about 1 in 7 of A’s “yes” calls is wrong. A public claim needs human confirmation.</div></button>
+<button class="pick good"><span>“Use Model B to shortlist photos, and have a biologist review every one.”</span><div class="res"><span class="lbl">Smart design.</span> High recall finds the candidates, and human review provides the precision. This pairing is common in field biology.</div></button>
+</div></section>
+
+<!-- 8 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Deploy and monitor</span>
+<h2>Spring changes the picture</h2>
+<p class="lead">Model A runs on every new memory card. Then leaves grow back, and a storm knocks Camera 7 sideways. Compare its precision across seasons.</p>
+<p><button class="btn on" data-dr="f">Fall (test set)</button> <button class="btn" data-dr="s">Spring (live photos)</button></p>
+<div class="bars">
+<div class="b"><span>Precision</span><div class="track"><div class="fill" id="barP"></div></div><span id="valP"></span></div>
+<div class="b"><span>Recall</span><div class="track"><div class="fill" id="barR"></div></div><span id="valR"></span></div>
+</div>
+<div class="card" id="drOut"></div>
+</div></section>
+
+<!-- 9 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Before you announce</span>
+<h2>The model finds candidates. People confirm species.</h2>
+<p class="lead">Check each task you would complete before any sighting leaves the classroom.</p>
+<div class="meter"><div class="m80">Machine: label 2,000 photos in minutes</div><div class="m20" id="m20">Human checks</div></div>
+<label class="ck"><input type="checkbox" class="h"> Judge the model on the test set, not the photos it trained on</label>
+<label class="ck"><input type="checkbox" class="h"> Read precision and recall, not just accuracy, and pick the one that matches the cost of a mistake</label>
+<label class="ck"><input type="checkbox" class="h"> Have a biologist confirm every “yes” before it becomes a public claim</label>
+<label class="ck"><input type="checkbox" class="h"> Re-check precision each season and retrain when it drifts</label>
+<p id="h20" class="hint">0 of 4 done.</p>
+</div></section>
+
+<!-- 10 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Your turn</span>
+<h2>Now try it with a prediction from your field</h2>
+<p class="lead">Nothing is saved or sent. Your answers stay on this page.</p>
+<div class="row">
+<div><h3>The prediction</h3><textarea placeholder="e.g., Flagging lab samples as contaminated"></textarea></div>
+<div><h3>False alarm or miss: which costs more?</h3><textarea placeholder="Who gets hurt by each kind of mistake?"></textarea></div>
+<div><h3>The metric you would watch</h3><textarea placeholder="Precision, recall, or F1, and why"></textarea></div>
+</div>
+</div></section>
+
+<!-- 11 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Discuss</span>
+<h2>Three questions for the room</h2>
+<button class="pick good"><span>1. Model C never found a single skunk but scored 95% accuracy. How is that possible?</span><div class="res">Skunks are rare. With 380 of 400 photos showing no skunk, saying “no” to everything is right 95% of the time. Accuracy can hide total failure on the thing you care about.</div></button>
+<button class="pick good"><span>2. Why would you favor recall for gas leaks but precision for the sighting?</span><div class="res">A missed leak can hurt people. A false sighting costs credibility. Pick the metric by what a mistake costs and who pays for it.</div></button>
+<button class="pick good"><span>3. What should stay human even if the model reached 99% precision?</span><div class="res">Confirming a record that becomes part of the scientific and public record, deciding what to announce and to whom, and choosing when the evidence is strong enough.</div></button>
+</div></section>
+
+</div>
+<div class="bar"><button id="prev">Back</button><div class="dots" id="dots"></div><button id="next">Next</button></div>
+</div>
+<script>
+(function(){
+var slides=[].slice.call(document.querySelectorAll('.slide')),i=0,dots=document.getElementById('dots');
+slides.forEach(function(s,n){var d=document.createElement('i');d.tabIndex=0;d.setAttribute('aria-label','Slide '+(n+1));d.onclick=function(){go(n)};d.onkeydown=function(e){if(e.key==='Enter')go(n)};dots.appendChild(d)});
+function go(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,k){s.classList.toggle('on',k===i);dots.children[k].classList.toggle('on',k===i)});
+document.getElementById('prev').disabled=i===0;document.getElementById('next').disabled=i===slides.length-1;slides[i].scrollTop=0;try{history.replaceState(null,'','#s'+(i+1))}catch(e){}}
+document.getElementById('prev').onclick=function(){go(i-1)};document.getElementById('next').onclick=function(){go(i+1)};
+document.addEventListener('keydown',function(e){if(/TEXTAREA|INPUT|SELECT/.test(e.target.tagName))return;if(e.key==='ArrowRight')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+
+function quiz(el,scoreEl,items,opts,suffix){var got=0,done=0;
+items.forEach(function(it){var d=document.createElement('div');d.className='q';
+var h='<span>'+it[0]+'</span>';opts.forEach(function(o){h+='<button class="opt" data-a="'+o[0]+'">'+o[1]+'</button>'});h+='<div class="fb"></div>';d.innerHTML=h;
+d.querySelectorAll('.opt').forEach(function(b){b.onclick=function(){if(d.classList.contains('done'))return;d.classList.add('done');done++;var ok=b.dataset.a===it[1];if(ok)got++;
+b.classList.add(ok?'right':'wrongpick');if(!ok)d.querySelector('[data-a="'+it[1]+'"]').classList.add('right');
+var fb=d.querySelector('.fb');fb.style.color=ok?'var(--ok)':'var(--alert)';fb.textContent=(ok?'Right. ':'Not quite. ')+it[2];
+scoreEl.textContent='Score: '+got+' of '+done+(done===items.length?suffix:'')}});el.appendChild(d)})}
+
+quiz(document.getElementById('life'),document.getElementById('lifeScore'),[
+["Agree that a “sighting” means a photo the course biologist would confirm, and that a false announcement is the costly mistake","1","Setting the goal and the success metric is stage 1, define the problem."],
+["Remove blurry and empty frames, label 2,000 photos, then split them 80/20","2","Cleaning, labeling, and splitting data is stage 2, prepare data."],
+["Fit the model on the 1,600 training photos","3","Learning patterns from training data is stage 3, train and tune."],
+["Score the model on the 400 test photos it has never seen","4","Testing on unseen data with precision and recall is stage 4, evaluate."],
+["Run the model on each new memory card and track precision every month","5","Live use plus watching for drift is stage 5, deploy and monitor."]
+],[["1","Define"],["2","Prepare"],["3","Train"],["4","Evaluate"],["5","Deploy"]],' · Monitoring loops back to the start.');
+
+quiz(document.getElementById('cm'),document.getElementById('cmScore'),[
+["Camera 3, night. Model: spotted skunk. Biologist: spotted skunk.","TP","Model said yes, and it was right. True positive: a correct hit."],
+["Camera 9, dusk. Model: spotted skunk. Biologist: a common striped skunk.","FP","Model said yes, but it was wrong. False positive: a false alarm."],
+["Camera 5, half hidden in tall grass. Model: no. Biologist: spotted skunk.","FN","Model said no, but it was there. False negative: a miss."],
+["Camera 1, raccoon at the creek. Model: no. Biologist: no.","TN","Model said no, and it was right. True negative: a correct reject."],
+["Camera 7, blurry shape at 2 a.m. Model: spotted skunk. Biologist: a house cat.","FP","Another false alarm, and the kind that turns into an embarrassing press release."]
+],[["TP","TP"],["FP","FP"],["FN","FN"],["TN","TN"]],' · Precision cares about FP, recall cares about FN.');
+
+/* overfitting */
+var ov={train:{a:99,b:91,txt:'<b>On the photos they studied</b>, Model 1 looks nearly perfect at 99%. Model 2 scores 91%. Which would you trust?'},
+test:{a:71,b:88,txt:'<b>On unseen photos from other cameras</b>, Model 1 drops to 71%. It learned “Camera 7 plus darkness means skunk,” not what a spotted skunk looks like. Model 2 holds at 88%. <b>A big gap between training and test scores is overfitting.</b>'}};
+function bar(id,v,hot){var b=document.getElementById(id);b.style.width=v+'%';b.classList.toggle('hot',!!hot)}
+function setOv(k){var d=ov[k];bar('barA',d.a,k==='test');bar('barB',d.b);document.getElementById('valA').textContent=d.a+'%';document.getElementById('valB').textContent=d.b+'%';document.getElementById('ovOut').innerHTML='<p>'+d.txt+'</p>'}
+setOv('train');
+
+/* drift */
+var dr={f:{p:86,r:60,txt:'<b>Fall:</b> on the test set, Model A is right about 6 times out of 7 when it says “spotted skunk.”'},
+s:{p:45,r:40,txt:'<b>Spring:</b> new leaves and a tilted camera change what the photos look like. Precision falls to about 45%, so more than half of A’s “yes” calls are now wrong. This is <b>model drift</b>. Loop back to stage 2: add spring photos, relabel, and retrain.'}};
+function setDr(k){var d=dr[k];bar('barP',d.p,k==='s');bar('barR',d.r,k==='s');document.getElementById('valP').textContent=d.p+'%';document.getElementById('valR').textContent=d.r+'%';document.getElementById('drOut').innerHTML='<p>'+d.txt+'</p>'}
+setDr('f');
+
+/* results table */
+var M=[[12,2,8,378],[19,31,1,349],[0,0,20,380]],shown=false,cb=document.getElementById('calc');
+function pct(x){return (x*100).toFixed(1)+'%'}
+cb.onclick=function(){shown=!shown;var rows=document.querySelectorAll('#res tbody tr');
+M.forEach(function(m,k){var tp=m[0],fp=m[1],fn=m[2],tn=m[3],a=(tp+tn)/(tp+fp+fn+tn),p=tp+fp?tp/(tp+fp):null,r=tp/(tp+fn),f=(p&&r)?2*p*r/(p+r):0;
+var v=[pct(a),p===null?'n/a':pct(p),pct(r),pct(f)];rows[k].querySelectorAll('.m').forEach(function(td,j){td.textContent=shown?v[j]:'?';td.style.color=shown&&((k===0&&j===1)||(k===1&&j===2)||(k===2&&j===0))?'var(--alert)':'';td.style.fontWeight=shown&&((k===0&&j===1)||(k===1&&j===2)||(k===2&&j===0))?'700':''})});
+this.textContent=shown?'Hide metrics':'Calculate metrics'};
+var fbm={A:['ok','Good call. A has the highest precision (85.7%): when it says “spotted skunk,” it is usually right. It misses 8 skunks, but for a public announcement a false alarm is the costly mistake.'],
+B:['no','B catches 19 of 20 skunks (95% recall), but its precision is only 38%. Most of its “yes” calls are wrong. That would make a great first-pass filter and a terrible press office.'],
+C:['no','C has 95% accuracy and has never found a skunk. Precision is n/a because it never says yes, and recall is 0%. This is why accuracy alone can lie.']};
+document.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){document.querySelectorAll('[data-m]').forEach(function(x){x.classList.toggle('on',x===b)});var f=fbm[b.dataset.m],p=document.getElementById('mfb');p.style.color=f[0]==='ok'?'var(--ok)':'var(--alert)';p.textContent=f[1]}});
+
+/* trade-off toggle */
+var modes={s:'<h3>Announcing a sighting: favor precision</h3><div class="flow"><span>False alarm</span><b>→</b><span>Public correction, wasted state survey, lost trust</span></div><div class="flow"><span>Miss</span><b>→</b><span>The skunk is still there. Find it next month.</span></div><p>“When I say yes, be right.” Choose <b>Model A</b> and confirm by hand.</p>',
+g:'<h3>Detecting a gas leak: favor recall</h3><div class="flow"><span>False alarm</span><b>→</b><span>Evacuate, check, return in 20 minutes</span></div><div class="flow"><span>Miss</span><b>→</b><span>People breathe gas. Fire or explosion risk.</span></div><p>“Don’t let one slip through.” An eager model like <b>B</b>, with a human checking each alarm, is the right design here.</p>'};
+var mo=document.getElementById('modeOut');mo.innerHTML=modes.s;
+
+document.addEventListener('click',function(e){var t=e.target.closest('button')||e.target;
+if(t.dataset&&t.dataset.mode){document.querySelectorAll('[data-mode]').forEach(function(b){b.classList.toggle('on',b===t)});mo.innerHTML=modes[t.dataset.mode]}
+if(t.dataset&&t.dataset.ov){document.querySelectorAll('[data-ov]').forEach(function(b){b.classList.toggle('on',b===t)});setOv(t.dataset.ov)}
+if(t.dataset&&t.dataset.dr){document.querySelectorAll('[data-dr]').forEach(function(b){b.classList.toggle('on',b===t)});setDr(t.dataset.dr)}
+var p=e.target.closest('.pick');if(p)p.classList.toggle('open')});
+
+document.querySelectorAll('.h').forEach(function(c){c.onchange=function(){var n=document.querySelectorAll('.h:checked').length;document.getElementById('h20').textContent=n+' of 4 done.'+(n===4?' Now the sighting is worth announcing.':'');var m=document.getElementById('m20');m.classList.toggle('full',n===4);m.textContent=n===4?'Checks done':'Human checks'}});
+var h=parseInt((location.hash||'').replace('#s',''),10);go(h?h-1:0);
+})();
+</script>
+</body>
+</html>

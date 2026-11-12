@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Governance Dead Letter</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F6F5;--surface:#FFFFFF;--ink:#16262B;--muted:#55686D;--line:#CBD8D6;--tray:#1F6F5C;--tray-ink:#FFFFFF;--alert:#C8372D;--alert-bg:#FBE7E4;--ok:#1F6F5C;--ok-bg:#DDF0EA;--gold:#E3A72F;--gold-bg:#FBF0D9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}}
+:root[data-theme="dark"]{--bg:#0F1B1E;--surface:#182A2E;--ink:#E8F0EE;--muted:#9DB3B0;--line:#2C4348;--tray:#4FB89E;--tray-ink:#0F1B1E;--alert:#FF8277;--alert-bg:#3A1F1E;--ok:#6AD0B6;--ok-bg:#17372F;--gold-bg:#3A2F15}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:400 clamp(16px,1.5vw,20px)/1.55 "Source Serif 4",Georgia,serif;overflow:hidden}
+h1,h2,h3,button,.tag,th{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif}
+h1{font-size:clamp(34px,6vw,72px);line-height:1.02;margin:0 0 .4em;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(26px,3.6vw,44px);line-height:1.1;margin:0 0 .3em;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.05em;margin:0 0 .3em}
+p{margin:.4em 0}
+.deck{height:100%;display:flex;flex-direction:column}
+.stage{flex:1;position:relative;min-height:0}
+.slide{position:absolute;inset:0;padding:clamp(20px,4vw,56px) clamp(16px,6vw,88px);overflow-y:auto;display:none}
+.slide.on{display:block}
+.wrap{max-width:980px;margin:0 auto}
+.lead{color:var(--muted);font-size:1.1em;max-width:62ch}
+.tag{display:inline-block;background:var(--tray);color:var(--tray-ink);padding:.15em .7em;border-radius:99px;font-size:.8em;font-weight:700;margin-bottom:.8em}
+.bar{display:flex;align-items:center;gap:12px;padding:10px clamp(14px,4vw,40px);border-top:1px solid var(--line);background:var(--surface)}
+.bar button{background:var(--tray);color:var(--tray-ink);border:0;border-radius:8px;padding:.5em 1.1em;font-weight:700;font-size:15px;cursor:pointer}
+.bar button:disabled{opacity:.35;cursor:default}
+.dots{flex:1;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line);cursor:pointer}
+.dots i.on{background:var(--tray);transform:scale(1.3)}
+button:focus-visible,.pick:focus-visible,textarea:focus-visible,input:focus-visible,.dots i:focus-visible,tr[tabindex]:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.hint{font:600 .8em "Bricolage Grotesque",sans-serif;color:var(--muted);margin:.8em 0 .4em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:10px 0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.btn{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.5em 1.1em;font-weight:700;cursor:pointer;font-size:.95em;margin:2px 0}
+.btn.on{border-color:var(--tray);background:var(--ok-bg)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35em .8em;font:600 .9em "Bricolage Grotesque",sans-serif}
+.flow b{color:var(--tray)}
+.pick{display:block;width:100%;text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;font:inherit;cursor:pointer}
+.pick .res{display:none;margin-top:8px;font-size:.92em}
+.pick.open .res{display:block}
+.pick.bad.open{border-color:var(--alert);background:var(--alert-bg)}
+.pick.good.open{border-color:var(--ok);background:var(--ok-bg)}
+.pick.meh.open{border-color:var(--gold);background:var(--gold-bg)}
+.pick .lbl{font:700 .85em "Bricolage Grotesque",sans-serif}
+.pick.bad .lbl{color:var(--alert)}.pick.good .lbl{color:var(--ok)}.pick.meh .lbl{color:var(--ink)}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.q>span{flex:1;min-width:200px}
+.q .opt{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:.3em .8em;font-weight:700;font-size:.85em;cursor:pointer}
+.q .opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.q .opt.wrongpick{border-color:var(--alert);background:var(--alert-bg)}
+.q .fb{width:100%;font-size:.9em;display:none}
+.q.done .fb{display:block}
+.tbl-wrap{overflow-x:auto;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:.85em;background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:560px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:.85em;color:var(--muted)}
+th.lab,td.lab{background:var(--ok-bg);font-weight:600}
+tr.flag{cursor:pointer}
+tr.flag:hover{background:var(--bg)}
+tr.flag.marked td{background:var(--gold-bg)}
+tr.flag.marked td.lab{background:var(--gold-bg)}
+tr.flag.shown td{background:var(--alert-bg)}
+.note{display:none;font-size:.9em;margin:6px 0;padding:8px 12px;border-left:4px solid var(--alert);background:var(--surface);border-radius:0 8px 8px 0}
+.note.on{display:block}
+.bars{margin:14px 0}
+.bars .b{display:grid;grid-template-columns:150px 1fr 56px;gap:10px;align-items:center;margin:8px 0;font:600 .85em "Bricolage Grotesque",sans-serif}
+.bars .track{height:22px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.bars .fill{height:100%;background:var(--tray);transition:width .4s}
+.bars .fill.hot{background:var(--alert)}
+.meter{height:30px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--line);margin:12px 0}
+.meter div{display:flex;align-items:center;padding:0 12px;font:700 .8em "Bricolage Grotesque",sans-serif;white-space:nowrap;transition:width .4s}
+.m80{width:80%;background:var(--tray);color:var(--tray-ink)}
+.m20{width:20%;background:var(--surface);color:var(--muted);border-left:1px solid var(--line)}
+.m20.full{background:var(--gold);color:#16262B}
+label.ck{display:flex;gap:10px;align-items:flex-start;margin:8px 0;cursor:pointer}
+label.ck input{margin-top:.45em;width:18px;height:18px;accent-color:var(--tray);flex-shrink:0}
+textarea{width:100%;min-height:110px;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:.9em;resize:vertical}
+code{font:600 .85em "Bricolage Grotesque",sans-serif;background:var(--ok-bg);padding:.1em .4em;border-radius:4px}
+.score{font:600 .85em "Bricolage Grotesque",sans-serif;color:var(--muted)}
+@media (max-width:560px){.q>span{flex-basis:100%}.bars .b{grid-template-columns:96px 1fr 44px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.flyer{width:100%;max-width:340px;display:block;border-radius:10px}
+.hs{cursor:pointer}
+.hs rect.ring{fill:transparent;stroke:transparent;stroke-width:2.5}
+.hs.mk rect.ring{stroke:#c98a12;stroke-dasharray:5 3}
+.hs.bad rect.ring{stroke:#b93535;stroke-dasharray:none}
+.hs.ok rect.ring{stroke:#2e7d4f;stroke-dasharray:none}
+.hs:focus{outline:none}.hs:focus-visible rect.ring{stroke:#4682d5}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;align-items:start}
+.src{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--tray);border-radius:0 10px 10px 0;padding:10px 14px;margin:8px 0;font-size:.92em}
+.src .m{display:block;font:600 .75em "Bricolage Grotesque",sans-serif;color:var(--muted);margin-bottom:4px}
+.letter{background:var(--gold-bg);border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-style:italic;line-height:1.6}
+.letter .pg{display:block;font:600 .72em "Bricolage Grotesque",sans-serif;font-style:normal;color:var(--muted);margin:8px 0 2px}
+.mono{font:500 .8em ui-monospace,Menlo,monospace;color:var(--muted);line-height:1.6}
+.nt{margin:6px 0;font-size:.88em}.nt.bad{color:var(--alert)}.nt.ok{color:var(--ok)}
+.btn{margin:2px 0}
+</style>
+</head>
+<body>
+<style>#calc input,.row input[type=number]{display:block;width:100%;margin-top:6px;padding:.4em .6em;font:inherit;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}</style>
+<div class="deck">
+<div class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide on"><div class="wrap">
+<span class="tag">Case study · Business</span>
+<h1>The Governance Dead Letter</h1>
+<p class="lead" style="font-size:1.35em;color:var(--ink)">“The governance document says reviews happen monthly. The last review was four months ago.”</p>
+<p class="lead">When does governance become theater?</p>
+<div class="row" style="max-width:520px;margin-top:18px">
+<div class="card" style="text-align:center;border-left:4px solid var(--ok)"><div style="font-size:40px;color:var(--ok)">✓</div><b>Written policy</b><p class="hint" style="margin:4px 0 0">Monthly reviews, a named reviewer, an escalation path</p></div>
+<div class="card" style="text-align:center;border-left:4px solid var(--alert)"><div style="font-size:40px;color:var(--alert)">✗</div><b>Actual practice</b><p class="hint" style="margin:4px 0 0">No review logged since September</p></div>
+</div>
+<p class="hint">What’s the difference between a governance process and a document that describes one? Use the arrow keys or the buttons below.</p>
+</div></section>
+
+<!-- 2 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Scenario</span>
+<h2>A plan that stopped running</h2>
+<div class="src" style="border-left-color:var(--alert)"><span class="m">The situation</span>The Business Department’s Help Assistant (DHA) has been running for a semester. It answers advising questions for business students from the department handbook. The department wrote a governance plan: monthly accuracy reviews, a designated reviewer, and an escalation path. The plan is in the Model Card. Three months in, the reviewer, Dr. Martinez, left the department. No one was reassigned. The monthly reviews stopped. The Model Card still says “monthly reviews by Dr. Martinez.”</div>
+<div class="src" style="border-left-color:var(--gold)"><span class="m">Meanwhile</span>The handbook was updated at midterm with new prerequisites: Intermediate Accounting now requires Principles of Accounting II with a C or better. The DHA’s knowledge base wasn’t updated. Students are getting the old prerequisites, and no one has caught it because no one is reviewing.</div>
+<div class="src" style="border-left-color:var(--ink)"><span class="m">The compounding problem</span>The governance document is now misinformation itself: it describes a process that doesn’t exist. The Model Card has become a false record.</div>
+<div class="flow"><span>Reviewer left</span><b>→</b><span>Reviews stopped</span><b>→</b><span>KB went stale</span><b>→</b><span>Students got wrong answers</span><b>→</b><span>Nobody noticed</span></div>
+<p class="hint">The DHA, the handbook, and the people are fictional.</p>
+</div></section>
+
+<!-- 3 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 1 · Audit the tags</span>
+<h2>The three-colour reality check</h2>
+<p class="lead">Each line was tagged when the Model Card was written. Is the tag still true today?</p>
+<div id="tags"></div>
+<p class="score" id="tagScore"></p>
+<div class="card" style="background:var(--ink);color:var(--bg)"><b>A tag is only as current as the last time someone checked.</b> [T] decays to [U] when the person who tested it leaves, the process changes, or time passes without re-checking.</div>
+</div></section>
+
+<!-- 4 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Why this is a gray box problem</span>
+<h2>The governance layer became a gray box</h2>
+<div class="row">
+<div class="card" style="border-left:4px solid #4682d5"><h3>What a student sees</h3><p>An answer with a source citation · a Model Card that says “reviewed monthly”</p></div>
+<div class="card" style="border-left:4px solid var(--alert)"><h3>What a student can’t see</h3><p>That the reviewer left · that reviews stopped · that the knowledge base is stale · that the Model Card itself is wrong</p></div>
+<div class="card" style="border-left:4px solid var(--ok)"><h3>What the builder can see, if they look</h3><p>The last review date in the logs (for example, AWS CloudTrail) · the knowledge base upload timestamp · the Model Card version history</p></div>
+</div>
+<div class="card" style="background:var(--ink);color:var(--bg)"><b>Gray box insight:</b> the documentation describes a system that no longer matches reality. Partial visibility plus outdated documentation equals false confidence.</div>
+<p class="hint">If the builder can see the logs and timestamps, why didn’t anyone catch this? Because nobody was assigned to look.</p>
+</div></section>
+
+<!-- 5 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Break the chain</span>
+<h2>Where could one mechanism have caught it?</h2>
+<p class="lead">Choose a link in the chain to see what would have stopped it there.</p>
+<p><button class="btn" data-tg="ch" data-k="a">Reviewer left</button> <button class="btn" data-tg="ch" data-k="b">Reviews stopped</button> <button class="btn" data-tg="ch" data-k="c">KB went stale</button> <button class="btn" data-tg="ch" data-k="d">Nobody noticed</button></p>
+<div class="card" id="tg-ch"></div>
+<p class="hint">All four are valid. The point: governance should be automated and redundant, not dependent on one person.</p>
+</div></section>
+
+<!-- 6 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 2 · Find the gap</span>
+<h2>What is this RACI missing?</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Task</th><th>Responsible</th><th>Accountable</th><th>Consulted</th><th>Informed</th></tr></thead>
+<tbody>
+<tr><td>Monthly accuracy review</td><td>Dr. Martinez</td><td>Dr. Martinez</td><td>Advising staff</td><td>Chair</td></tr>
+<tr><td>Update knowledge base</td><td>Student builder</td><td>Dr. Martinez</td><td>Registrar</td><td>Chair</td></tr>
+<tr><td>Escalate a complaint</td><td>Advising staff</td><td>Chair</td><td>Dr. Martinez</td><td>Dean’s office</td></tr>
+</tbody></table></div>
+<p class="lead">Which changes would you make? Open each one.</p>
+<button class="pick good"><span>“Name a successor (backup) for every Accountable role.”</span><div class="res"><span class="lbl">Strong.</span> One person leaving shouldn’t leave a task with no A. Ask: what happens to every A if that person leaves?</div></button>
+<button class="pick good"><span>“Add a re-check trigger: the handbook changes, a reviewer changes, or 30 days pass without a review.”</span><div class="res"><span class="lbl">Strong.</span> It ties the review to events, not memory. The midterm handbook update would have forced a knowledge base check.</div></button>
+<button class="pick bad"><span>“Make three people Accountable for the review, so it’s covered.”</span><div class="res"><span class="lbl">No.</span> Exactly one A per task. Three As means everyone assumes someone else did it. Use a named backup instead.</div></button>
+<button class="pick meh"><span>“Write a longer, more detailed governance document.”</span><div class="res"><span class="lbl">Doesn’t fix it.</span> The plan was already written. The gap is in records and succession, not the length of the document.</div></button>
+</div></section>
+
+<!-- 7 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 3 · Write a stop trigger</span>
+<h2>Could a new employee follow it on day one?</h2>
+<p><button class="btn" data-tg="st" data-k="a">Vague</button> <button class="btn" data-tg="st" data-k="b">Better, still vague</button> <button class="btn" data-tg="st" data-k="c">Specific</button></p>
+<div class="card" id="tg-st"></div>
+<p class="lead">Template: “If no review has occurred in ___ days, then ___.”</p>
+</div></section>
+
+<!-- 8 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 4 · Peer test it · the key task</span>
+<h2>Can a classmate tell the process broke?</h2>
+<p class="lead">Hand the Model Card governance section to a peer. Compare two versions.</p>
+<p><button class="btn" data-tg="pc" data-k="a">Card A: as written</button> <button class="btn" data-tg="pc" data-k="b">Card B: with dated records</button></p>
+<div class="card" id="tg-pc"></div>
+<div class="card" style="border-color:var(--gold);background:var(--gold-bg)"><b>⚠ If the peer can’t detect the governance failure from the documents alone, the documents aren’t transparent enough.</b></div>
+</div></section>
+
+<!-- 9 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Task 5 · Cost it</span>
+<h2>What did three months of stale answers cost?</h2>
+<p class="lead">Illustrative numbers. Change them and compare with what a working review would have cost.</p>
+<div class="row" id="calc">
+<label class="card" style="margin:0">Students who asked about prerequisites<br><input id="cS" type="number" value="50" min="0"></label>
+<label class="card" style="margin:0">% who registered for the wrong course<br><input id="cP" type="number" value="10" min="0" max="100"></label>
+<label class="card" style="margin:0">Cost per wrong registration ($)<br><input id="cC" type="number" value="400" min="0"></label>
+</div>
+<div class="row" style="margin-top:10px">
+<label class="card" style="margin:0">Backup review hours per month<br><input id="cH" type="number" value="2" min="0"></label>
+<label class="card" style="margin:0">Staff hourly cost ($)<br><input id="cW" type="number" value="30" min="0"></label>
+</div>
+<div class="row" style="margin-top:10px">
+<div class="card" style="border-left:4px solid var(--alert)"><span class="hint">Cost of the dead letter</span><div id="oStale" style="font:800 1.6em 'Bricolage Grotesque',sans-serif"></div><span class="hint" id="oN"></span></div>
+<div class="card" style="border-left:4px solid var(--ok)"><span class="hint">Cost of three months of backup reviews</span><div id="oGov" style="font:800 1.6em 'Bricolage Grotesque',sans-serif"></div></div>
+</div>
+<p class="hint">“Cost per wrong registration” stands in for advisor time, a late add or drop, and a delayed sequence. Some costs, such as a student’s trust, don’t fit in a cell; name them in HW-13 anyway.</p>
+</div></section>
+
+<!-- 10 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Make it operational</span>
+<h2>Records, not intent</h2>
+<p class="lead">Check each practice you would put in place so this can’t happen silently.</p>
+<div class="meter"><div class="m80">The written plan</div><div class="m20" id="m20">Human checks</div></div>
+<label class="ck"><input type="checkbox" class="h"> A dated review log entry every month: who, when, sample size, result</label>
+<label class="ck"><input type="checkbox" class="h"> A named backup for every Accountable role</label>
+<label class="ck"><input type="checkbox" class="h"> An automated alert when no review has been logged for 30 days</label>
+<label class="ck"><input type="checkbox" class="h"> A knowledge base freshness check whenever the handbook changes</label>
+<label class="ck"><input type="checkbox" class="h"> A “last verified” date and name next to every [T] tag in the Model Card</label>
+<p id="h20" class="hint">0 of 5 done.</p>
+</div></section>
+
+<!-- 11 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Mapped to your deliverables</span>
+<h2>From this case to Lab-13 and HW-13</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Task</th><th>What to do</th><th>Deliverable</th></tr></thead>
+<tbody>
+<tr><td><b>1. Audit tags</b></td><td>Re-tag every Model Card claim with its current [P], [T], or [U] status</td><td>Lab-13 D2: Model Card</td></tr>
+<tr><td><b>2. Find the gap</b></td><td>What is the RACI missing? (Successor assignment, re-check trigger)</td><td>Lab-13 D3: RACI</td></tr>
+<tr><td><b>3. Write a stop trigger</b></td><td>“If no review has occurred in ___ days, then ___,” specific enough for a new employee</td><td>Lab-13 D3: Stop triggers</td></tr>
+<tr><td><b>4. Peer test it</b></td><td>Hand your Model Card to a classmate. Can they tell the process broke?</td><td>Lab-13 D4: Peer check</td></tr>
+<tr><td><b>5. Cost it</b></td><td>Cost three months of stale answers and add it to the value calculator</td><td>HW-13: Costs table</td></tr>
+</tbody></table></div>
+<p class="hint">Task 4 is the key: if a peer can’t detect the failure from the documents alone, the documents aren’t transparent enough.</p>
+</div></section>
+
+<!-- 12 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Key takeaway</span>
+<h2>Governance is a practice, not a document</h2>
+<div class="card" style="background:var(--ink);color:var(--bg);font-size:1.05em">A review process that nobody performs isn’t a safeguard. The three-colour rule makes this visible: a [T] that hasn’t been re-checked decays to [U].</div>
+<div class="row">
+<div class="card" style="border-left:4px solid #4682d5"><h3>Lab-13</h3><p>Check every [T] tag in your Model Card. When was it last verified? By whom? If you can’t answer, change it to [U].</p></div>
+<div class="card" style="border-left:4px solid var(--gold)"><h3>HW-13</h3><p>Your brief needs a realistic review cadence, not an aspirational one, and a successor for every Accountable role.</p></div>
+<div class="card" style="border-left:4px solid var(--ink)"><h3>Week 14</h3><p>You’ll test whether your governance actually prevents harm. A stop trigger that nobody monitors is this scenario repeated.</p></div>
+</div>
+<p class="hint">Standards: NIST AI RMF Govern · IEEE 7000-2021 · NIST CSF 2.0 Govern</p>
+</div></section>
+
+<!-- 13 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Your turn</span>
+<h2>Would your plan survive if you left tomorrow?</h2>
+<p class="lead">Nothing is saved or sent. Your answers stay on this page.</p>
+<div class="row">
+<div><h3>One [T] tag to re-check</h3><textarea placeholder="Which claim? When was it last verified, and by whom?"></textarea></div>
+<div><h3>Your Accountable roles’ backups</h3><textarea placeholder="For each A: who takes over if they leave?"></textarea></div>
+<div><h3>Your stop trigger</h3><textarea placeholder="If no review has occurred in ___ days, then ___."></textarea></div>
+</div>
+</div></section>
+
+<!-- 14 -->
+<section class="slide"><div class="wrap">
+<span class="tag">Discuss</span>
+<h2>Four questions for the room</h2>
+<button class="pick good"><span>1. “Is the Model Card lying, or just out of date? Does the distinction matter to a student who got wrong prerequisite information?”</span><div class="res">“Lying” implies intent; “out of date” implies neglect. The impact on the student is the same. Does the distinction matter when someone acts on wrong information?</div></button>
+<button class="pick good"><span>2. “What’s the minimum governance record that would have caught this?”</span><div class="res">A dated log entry, not a policy statement. “Dr. Martinez reviewed DHA accuracy on Sept 30. Result: 19 of 20 supported.” One line like that each month makes a missing month visible.</div></button>
+<button class="pick good"><span>3. “You’re the department chair. What do you do first: fix the knowledge base, fix the governance, or stop the system?”</span><div class="res">No single right answer. Stop it (safety first), fix the KB (reduce harm now), or fix the governance (prevent a repeat): each is defensible. The reasoning is what counts, including who you notify about the wrong answers already given.</div></button>
+<button class="pick good"><span>4. “How would you redesign the RACI so one person leaving doesn’t break the review process?”</span><div class="res">Backup reviewers, automated alerts, and rotation schedules. A single point of failure in governance is as dangerous as one in infrastructure.</div></button>
+</div></section>
+
+</div>
+<div class="bar"><button id="prev">Back</button><div class="dots" id="dots"></div><button id="next">Next</button></div>
+</div>
+<script>
+window.CASE={
+quizzes:[
+{el:'tags',score:'tagScore',opts:[['keep','Keep the tag'],['u','Downgrade to [U]']],suffix:' · Evidence has a shelf life.',items:[
+["<b>[T]</b> “Monthly accuracy reviews by Dr. Martinez” <span class='hint'>(true when written: she did the first review)</span>","u","Dr. Martinez left and no one re-checked. The test is four months old and the process it describes is gone. Now [U]."],
+["<b>[P]</b> “Escalation to the department chair within 48 hours” <span class='hint'>(tagged [P] because it’s department policy)</span>","u","In this course [P] means provider-published, and a department policy isn’t a provider claim. It has never been tested either. A policy that exists isn’t a policy that works: [U] until someone tests it."],
+["<b>[T]</b> “Knowledge base updated each semester” <span class='hint'>(true at launch)</span>","u","The midterm handbook update was missed. Launch evidence is no longer current. Now [U]."],
+["<b>[P]</b> “Model: a Claude Haiku-class model via Amazon Bedrock, version as listed by the provider”","keep","Still a provider-published fact, as long as the provider’s page still lists that version. Record the date you checked it."]
+]}],
+toggles:{
+ch:{a:'<p><b>Successor assignment.</b> When Dr. Martinez left, the RACI should already have named a backup for her A roles. Leaving is an event the plan can expect.</p>',
+b:'<p><b>An automated no-review alert.</b> If no review log entry exists for 30 days, the chair gets an email. The alert doesn’t care who left.</p>',
+c:'<p><b>A knowledge base freshness check.</b> When the handbook changes, the knowledge base upload date is compared with the handbook date. Midterm would have flagged it.</p>',
+d:'<p><b>A dated review record.</b> “Nobody noticed” is only possible when there’s nothing to notice. A missing log entry is visible; a missing intention is not.</p>'},
+st:{a:'<p class="mono">“Review regularly.”</p><p class="nt bad">Not a trigger. Who? How often? What happens if they don’t? A new employee can’t act on it.</p>',
+b:'<p class="mono">“If accuracy drops, pause the assistant.”</p><p class="nt bad">Better, but who measures accuracy, how, and who pauses it? If nobody is reviewing, nobody sees the drop. That’s this case.</p>',
+c:'<p class="mono">“If no review log entry exists for 30 days, the system emails the department chair and the backup reviewer, and turns off the appointment action until a review is logged.”</p><p class="nt ok">Specific: a measurable condition, named people, and an action that happens without anyone remembering.</p>'},
+pc:{a:'<p class="mono">Governance: Accuracy is reviewed monthly by Dr. Martinez. Issues escalate to the department chair within 48 hours. The knowledge base is updated each semester.</p><p class="nt bad">Reads fine. A peer can’t tell anything is wrong: no dates, no records, no way to check.</p>',
+b:'<p class="mono">Review log: Sept 2 · Dr. Martinez · 20 answers · 19 supported<br>Last review: Sept 30 · Next due: Oct 30 · <b style="color:var(--alert)">OVERDUE</b><br>Accountable: Dr. Martinez (left the department) · Backup: none<br>Knowledge base uploaded: Aug 20 · Handbook revised: Oct 12</p><p class="nt ok">A peer spots three problems in seconds: an overdue review, a missing backup, and a knowledge base older than the handbook.</p>'}},
+doneMsg:'Now a missing month shows up as a missing record.'
+};
+(function(){
+function v(id){var x=parseFloat(document.getElementById(id).value);return isNaN(x)?0:x}
+function f(n){return '$'+Math.round(n).toLocaleString('en-US')}
+function calc(){var n=v('cS')*v('cP')/100,stale=n*v('cC'),gov=v('cH')*v('cW')*3;
+document.getElementById('oStale').textContent=f(stale);
+document.getElementById('oN').textContent=(Math.round(n*10)/10)+' students registered for the wrong course';
+document.getElementById('oGov').textContent=f(gov)}
+['cS','cP','cC','cH','cW'].forEach(function(id){document.getElementById(id).addEventListener('input',calc)});calc();
+})();
+
+</script>
+<script>
+(function(){
+var slides=[].slice.call(document.querySelectorAll('.slide')),i=0,dots=document.getElementById('dots');
+slides.forEach(function(s,n){var d=document.createElement('i');d.tabIndex=0;d.setAttribute('aria-label','Slide '+(n+1));d.onclick=function(){go(n)};d.onkeydown=function(e){if(e.key==='Enter')go(n)};dots.appendChild(d)});
+function go(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,k){s.classList.toggle('on',k===i);dots.children[k].classList.toggle('on',k===i)});
+document.getElementById('prev').disabled=i===0;document.getElementById('next').disabled=i===slides.length-1;slides[i].scrollTop=0;try{history.replaceState(null,'','#s'+(i+1))}catch(e){}}
+window.goSlide=go;
+document.getElementById('prev').onclick=function(){go(i-1)};document.getElementById('next').onclick=function(){go(i+1)};
+document.addEventListener('keydown',function(e){if(/TEXTAREA|INPUT|SELECT/.test(e.target.tagName))return;if(e.target.closest&&e.target.closest('.flyer'))return;if(e.key==='ArrowRight')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+var C=window.CASE||{};
+/* quizzes */
+(C.quizzes||[]).forEach(function(q){var el=document.getElementById(q.el),sc=document.getElementById(q.score),got=0,done=0;
+q.items.forEach(function(it){var d=document.createElement('div');d.className='q';var h='<span>'+it[0]+'</span>';q.opts.forEach(function(o){h+='<button class="opt" data-a="'+o[0]+'">'+o[1]+'</button>'});h+='<div class="fb"></div>';d.innerHTML=h;
+d.querySelectorAll('.opt').forEach(function(b){b.onclick=function(){if(d.classList.contains('done'))return;d.classList.add('done');done++;var ok=b.dataset.a===it[1];if(ok)got++;
+b.classList.add(ok?'right':'wrongpick');if(!ok)d.querySelector('[data-a="'+it[1]+'"]').classList.add('right');var fb=d.querySelector('.fb');fb.style.color=ok?'var(--ok)':'var(--alert)';fb.textContent=(ok?'Right. ':'Not quite. ')+it[2];
+sc.textContent='Score: '+got+' of '+done+(done===q.items.length?(q.suffix||''):'')}});el.appendChild(d)})});
+/* toggles */
+Object.keys(C.toggles||{}).forEach(function(g){var out=document.getElementById('tg-'+g),m=C.toggles[g];var btns=document.querySelectorAll('[data-tg="'+g+'"]');
+function set(k){btns.forEach(function(b){b.classList.toggle('on',b.dataset.k===k)});out.innerHTML=m[k]}
+btns.forEach(function(b){b.onclick=function(){set(b.dataset.k)}});set(btns[0].dataset.k)});
+/* picks */
+document.querySelectorAll('.pick').forEach(function(p){p.onclick=function(){p.classList.toggle('open')}});
+/* flyer */
+if(C.flyer){var F=C.flyer,hs=[].slice.call(document.querySelectorAll('.flyer .hs')),rv=false,fn=document.getElementById('flagN');
+function cnt(){fn.textContent='Flagged '+hs.filter(function(h){return h.classList.contains('mk')}).length+'.'}
+hs.forEach(function(h){function t(){if(rv)return;h.classList.toggle('mk');cnt()}h.addEventListener('click',t);h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();t()}})});
+document.getElementById('revF').onclick=function(){rv=!rv;var hit=0,miss=0,out=[];
+hs.forEach(function(h){var k=h.dataset.k,m=h.classList.contains('mk');h.classList.toggle('bad',rv&&!!F.bad[k]);h.classList.toggle('ok',rv&&!!F.ok[k]&&m);if(F.bad[k]&&m)hit++;if(F.ok[k]&&m)miss++;
+if(rv&&F.bad[k])out.push('<p class="nt bad">'+F.bad[k]+'</p>');if(rv&&F.ok[k]&&m)out.push('<p class="nt ok">'+F.ok[k]+'</p>')});
+document.getElementById('fNotes').innerHTML=out.join('');fn.textContent=rv?'You caught '+hit+' of '+Object.keys(F.bad).length+' errors'+(miss?' and flagged '+miss+' decoy'+(miss>1?'s':'')+'.':'.'):'';if(!rv)cnt();this.textContent=rv?'Hide errors':'Reveal errors'}}
+/* flag table */
+if(document.getElementById('log')&&document.getElementById('reveal')){var rv2=false,rows=[].slice.call(document.querySelectorAll('#log tr.flag')),nb=rows.filter(function(r){return r.dataset.bad==='1'}).length;
+function tr(r){if(rv2)return;r.classList.toggle('marked');document.getElementById('flagScore').textContent='Flagged '+document.querySelectorAll('#log tr.marked').length+' rows.'}
+rows.forEach(function(r){r.onclick=function(){tr(r)};r.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();tr(r)}}});
+document.getElementById('reveal').onclick=function(){rv2=!rv2;var hit=0,miss=0;rows.forEach(function(r){var b=r.dataset.bad==='1',m=r.classList.contains('marked');if(b&&m)hit++;if(!b&&m)miss++;r.classList.toggle('shown',rv2&&b)});
+document.querySelectorAll('#notes .note').forEach(function(n){var r=rows[+n.dataset.n-1];n.classList.toggle('on',rv2&&(r.dataset.bad==='1'||r.classList.contains('marked')))});
+this.textContent=rv2?'Hide check':'Check against P1';document.getElementById('flagScore').textContent=rv2?'You caught '+hit+' of '+nb+' wrong rows'+(miss?' and flagged '+miss+' correct row'+(miss>1?'s':'')+'.':'.'):'Flagged '+document.querySelectorAll('#log tr.marked').length+' rows.'}}
+/* meter */
+var hc=document.querySelectorAll('.h'),N=hc.length;
+hc.forEach(function(c){c.onchange=function(){var n=document.querySelectorAll('.h:checked').length;document.getElementById('h20').textContent=n+' of '+N+' done.'+(n===N?' '+(C.doneMsg||'Done.'):'');var m=document.getElementById('m20');m.classList.toggle('full',n===N);m.textContent=n===N?'Checks done':'Human checks'}});
+var hh=parseInt((location.hash||'').replace('#s',''),10);go(hh?hh-1:0);
+})();
+</script>
+</body>
+</html>
