@@ -186,6 +186,18 @@
       "added": "2026-11-11"
     },
     {
+      "slug": "northstar-workshop-assistant",
+      "title": "Building the Northstar Workshop Assistant",
+      "subtitle": "Video: build a one-tool agent, add an approval gate, break it on purpose, and trust the activity record over the reply",
+      "author": "DTCC-MLU Course 1 Working Group 3",
+      "course": "Weeks 10–11 · Module M-03 Agentic AI",
+      "topics": ["agents", "approval gates", "failure testing"],
+      "url": "https://dtc-consortium.github.io/ai-graybox-gallery/grayboxes/northstar-workshop-assistant/",
+      "repo": "https://github.com/DTC-Consortium/ai-graybox-gallery/tree/main/grayboxes/northstar-workshop-assistant",
+      "thumb": "files/thumbs/northstar-workshop-assistant.png",
+      "added": "2026-11-18"
+    },
+    {
       "slug": "invisible-part-time-student",
       "title": "The Invisible Part-Time Student",
       "subtitle": "A help assistant answers every question correctly for full-time students and misleads part-time ones",

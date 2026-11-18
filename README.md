@@ -28,10 +28,11 @@ Two of the gray boxes in the gallery today:
 | [A-Star Path Planning](https://ocj-dev.github.io/kineval/pathfinding/) | How a heuristic steers graph search | A grid world planned like a navigation app |
 
 The gallery also hosts fifteen gray boxes written by the DTCC-MLU Course 1
-faculty working groups, one or two for each of weeks 1 to 14. These are
-prebuilt single-file HTML decks rather than Slidev projects, so they live in
-this repository under [`grayboxes/`](grayboxes/) and each is served from its
-own URL, `https://dtc-consortium.github.io/ai-graybox-gallery/grayboxes/<slug>/`:
+faculty working groups, one or two for each of weeks 1 to 14, and one short
+video. These are prebuilt files rather than Slidev projects — single-file HTML
+decks, and an MP4 with a page that plays it — so they live in this repository
+under [`grayboxes/`](grayboxes/) and each is served from its own URL,
+`https://dtc-consortium.github.io/ai-graybox-gallery/grayboxes/<slug>/`:
 
 | Week | Gray box | Discipline | Concepts |
 |---|---|---|---|
@@ -47,6 +48,7 @@ own URL, `https://dtc-consortium.github.io/ai-graybox-gallery/grayboxes/<slug>/`
 | 9 | [Forty-Two, Not 420](grayboxes/forty-two-not-420/) | STEM | fine-tuning, evaluation, metrics |
 | 10 | [Available Is Not Ordered](grayboxes/available-is-not-ordered/) | Career-technical | agents, tools and permissions, least privilege |
 | 11 | [Unknown Is an Answer](grayboxes/unknown-is-an-answer/) | Health | agents, tool errors, testing |
+| 10–11 | [Building the Northstar Workshop Assistant](grayboxes/northstar-workshop-assistant/) (video) | Module M-03 Agentic AI | agents, approval gates, failure testing |
 | 12 | [The Invisible Part-Time Student](grayboxes/invisible-part-time-student/) | Social sciences and public service | responsible ai, bias, fairness |
 | 13 | [The Governance Dead Letter](grayboxes/governance-dead-letter/) | Business | governance, transparency, model cards |
 | 14 | [Confirmation Fatigue](grayboxes/confirmation-fatigue/) | Health | confirmation controls, human oversight, monitoring |
@@ -80,7 +82,7 @@ files/gallery.js         renders tiles from gallery.json
 files/thumbs/            one image per entry, 1600x900
 guide/                   "Make Your Own Gray Box" Slidev deck
 template/                starter deck for contributors
-grayboxes/<slug>/        prebuilt HTML decks hosted by the gallery itself
+grayboxes/<slug>/        prebuilt HTML decks and videos hosted by the gallery itself
 scripts/thumb.mjs        capture a thumbnail from a published Slidev deck
 scripts/thumb-html.mjs   capture a thumbnail from a prebuilt HTML deck
 scripts/check-gallery.mjs validate entries, thumbnails and links

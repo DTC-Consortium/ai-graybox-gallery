@@ -147,6 +147,23 @@ under, on its title slide and in the entry's `license` field.
 `thumb:html` expects the deck to mark its slides `.slide`, the visible one
 `.slide.on`, and to step forward on the right arrow key.
 
+### A video instead of a deck
+
+A short video works the same way. Put the `.mp4` in its own folder under
+`grayboxes/` next to an `index.html` that plays it — copy
+[`grayboxes/northstar-workshop-assistant/index.html`](grayboxes/northstar-workshop-assistant/index.html)
+and change the file name, the text and the chapter list. Keep the video well
+under 50 MB, since GitHub refuses files over 100 MB, and prefer one with its
+index at the front, which you can do without re-encoding:
+
+```bash
+ffmpeg -i YourVideo.mp4 -c copy -movflags +faststart \
+  grayboxes/your-video/your-video.mp4
+```
+
+For the thumbnail, save any 1600×900 frame to `files/thumbs/your-video.png`;
+`thumb:html` is for decks. Leave `thumbSlide` out of the entry.
+
 ## What gets reviewed
 
 Maintainers check that the deck is a gray box rather than a lecture, that it

@@ -55,11 +55,36 @@ const TYPES = {
 	'.woff': 'font/woff',
 	'.woff2': 'font/woff2',
 	'.md': 'text/plain; charset=utf-8',
+	'.mp4': 'video/mp4',
+	'.webm': 'video/webm',
 };
 
-async function send( res, path, status = 200 ) {
+/*
+ * Answer byte-range requests the way GitHub Pages does. Browsers fetch video
+ * in ranges, and without them a <video> can play from the start but cannot
+ * seek -- so a local preview would hide a broken chapter link.
+ */
+async function send( res, path, status = 200, req = null ) {
 	const body = await readFile( path );
-	res.writeHead( status, { 'content-type': TYPES[ extname( path ).toLowerCase() ] || 'application/octet-stream' } );
+	const headers = {
+		'content-type': TYPES[ extname( path ).toLowerCase() ] || 'application/octet-stream',
+		'accept-ranges': 'bytes',
+	};
+	const range = status === 200 && req && /^bytes=(\d*)-(\d*)$/.exec( req.headers.range || '' );
+	if ( range && ( range[ 1 ] !== '' || range[ 2 ] !== '' ) ) {
+		const size = body.length;
+		const start = range[ 1 ] === '' ? Math.max( 0, size - Number( range[ 2 ] ) ) : Number( range[ 1 ] );
+		const end = range[ 1 ] === '' || range[ 2 ] === '' ? size - 1 : Math.min( Number( range[ 2 ] ), size - 1 );
+		if ( start > end ) {
+			res.writeHead( 416, { ...headers, 'content-range': `bytes */${size}` } );
+			res.end();
+			return;
+		}
+		res.writeHead( 206, { ...headers, 'content-range': `bytes ${start}-${end}/${size}`, 'content-length': end - start + 1 } );
+		res.end( body.subarray( start, end + 1 ) );
+		return;
+	}
+	res.writeHead( status, { ...headers, 'content-length': body.length } );
 	res.end( body );
 }
 
@@ -87,7 +112,7 @@ createServer( async ( req, res ) => {
 	try {
 		const info = await stat( path );
 		if ( info.isDirectory() ) path = join( path, 'index.html' );
-		await send( res, path );
+		await send( res, path, 200, req );
 		return;
 	} catch {}
 
